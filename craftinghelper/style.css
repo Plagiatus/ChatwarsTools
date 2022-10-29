@@ -1,0 +1,42 @@
+.hidden {
+  display: none;
+}
+
+.crafting-mana {
+  margin-left: 1em;
+}
+
+.list-group-item {
+  padding: 0.15rem 2rem; 
+}
+
+legend {
+  font-size: 1.2rem;
+}
+
+textarea {
+  margin-bottom: 1rem;
+}
+
+.bi-plus-square-fill {
+  color: var(--green);
+  margin-left: 1em;
+  cursor: pointer;
+}
+
+.bi-dash-square-fill {
+  color: var(--red);
+  cursor: pointer;
+}
+
+#search-helper {
+  margin: 1em 0 1em 1em;
+}
+
+#error-output {
+  margin-top: 1em;
+}
+
+.copy-button {
+  padding: 0 0.3em;
+}

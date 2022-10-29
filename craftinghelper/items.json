@@ -1,0 +1,474 @@
+[
+  {
+    "id": 1,
+    "name": "Thread",
+    "recipe": [],
+    "manacost": 0
+  },
+  {
+    "id": 2,
+    "name": "Stick",
+    "recipe": [],
+    "manacost": 0
+  },
+  {
+    "id": 3,
+    "name": "Pelt",
+    "recipe": [],
+    "manacost": 0
+  },
+  {
+    "id": 4,
+    "name": "Bone",
+    "recipe": [],
+    "manacost": 0
+  },
+  {
+    "id": 5,
+    "name": "Coal",
+    "recipe": [],
+    "manacost": 0
+  },
+  {
+    "id": 6,
+    "name": "Charcoal",
+    "recipe": [],
+    "manacost": 0
+  },
+  {
+    "id": 7,
+    "name": "Powder",
+    "recipe": [],
+    "manacost": 0
+  },
+  {
+    "id": 8,
+    "name": "Iron ore",
+    "recipe": [],
+    "manacost": 0
+  },
+  {
+    "id": 9,
+    "name": "Cloth",
+    "recipe": [],
+    "manacost": 0
+  },
+  {
+    "id": 10,
+    "name": "Silver ore",
+    "recipe": [],
+    "manacost": 0
+  },
+  {
+    "id": 11,
+    "name": "Bauxite",
+    "recipe": [],
+    "manacost": 0
+  },
+  {
+    "id": 12,
+    "name": "Cord",
+    "recipe": [
+      {
+        "id": 1,
+        "amount": 7
+      },
+      {
+        "id": 19,
+        "amount": 1
+      }
+    ],
+    "manacost": 15
+  },
+  {
+    "id": 13,
+    "name": "Magic Stone",
+    "recipe": [],
+    "manacost": 0
+  },
+  {
+    "id": 14,
+    "name": "Wooden Shaft",
+    "recipe": [
+      {
+        "id": 2,
+        "amount": 5
+      },
+      {
+        "id": 7,
+        "amount": 1
+      }
+    ],
+    "manacost": 10
+  },
+  {
+    "id": 15,
+    "name": "Sapphire",
+    "recipe": [],
+    "manacost": 0
+  },
+  {
+    "id": 16,
+    "name": "Solvent",
+    "recipe": [],
+    "manacost": 0
+  },
+  {
+    "id": 17,
+    "name": "Ruby",
+    "recipe": [],
+    "manacost": 0
+  },
+  {
+    "id": 18,
+    "name": "Hardener",
+    "recipe": [],
+    "manacost": 0
+  },
+  {
+    "id": 19,
+    "name": "Steel",
+    "recipe": [
+      {
+        "id": 8,
+        "amount": 2
+      },
+      {
+        "id": 7,
+        "amount": 2
+      }
+    ],
+    "manacost": 10
+  },
+  {
+    "id": 20,
+    "name": "Leather",
+    "recipe": [
+      {
+        "id": 3,
+        "amount": 4
+      }
+    ],
+    "manacost": 10
+  },
+  {
+    "id": 21,
+    "name": "Bone Powder",
+    "recipe": [
+      {
+        "id": 4,
+        "amount": 4
+      }
+    ],
+    "manacost": 10
+  },
+  {
+    "id": 22,
+    "name": "String",
+    "recipe": [
+      {
+        "id":2,
+        "amount": 3
+      }
+    ],
+    "manacost": 10
+  },
+  {
+    "id": 23,
+    "name": "Coke",
+    "recipe": [
+      {
+        "id":5,
+        "amount":3
+      },
+      {
+        "id": 6,
+        "amount": 3
+      }
+    ],
+    "manacost": 10
+  },
+  {
+    "id": 24,
+    "name": "Purified Powder",
+    "recipe": [
+      {
+        "id": 21,
+        "amount": 2
+      },
+      {
+        "id": 7,
+        "amount": 2
+      },
+      {
+        "id": 13,
+        "amount": 1
+      }
+    ],
+    "manacost": 10
+  },
+  {
+    "id": 25,
+    "name": "Silver Alloy",
+    "recipe": [
+      {
+        "id": 24,
+        "amount": 1
+      },
+      {
+        "id": 19,
+        "amount": 1
+      },
+      {
+        "id": 10,
+        "amount": 1
+      }
+    ],
+    "manacost": 15
+  },
+  {
+    "id": 26,
+    "name": "",
+    "recipe": [],
+    "manacost": 0
+  },
+  {
+    "id": 27,
+    "name": "Steel Mold",
+    "recipe": [
+      {
+        "id": 8,
+        "amount": 2
+      },
+      {
+        "id": 7,
+        "amount": 2
+      },
+      {
+        "id": 22,
+        "amount": 2
+      }
+    ],
+    "manacost": 15
+  },
+  {
+    "id": 28,
+    "name": "Silver Mold",
+    "recipe": [
+      {
+        "id": 23,
+        "amount": 2
+      },
+      {
+        "id": 10,
+        "amount": 2
+      },
+      {
+        "id": 22,
+        "amount": 2
+      }
+    ],
+    "manacost": 15
+  },
+  {
+    "id": 29,
+    "name": "Blacksmith Frame",
+    "recipe": [
+      {
+        "id": 11,
+        "amount": 5
+      },
+      {
+        "id": 24,
+        "amount": 3
+      },
+      {
+        "id": 28,
+        "amount": 1
+      }
+    ],
+    "manacost": 50
+  },
+  {
+    "id": 30,
+    "name": "Artisan Frame",
+    "recipe": [
+      {
+        "id": 11,
+        "amount": 5
+      },
+      {
+        "id": 24,
+        "amount": 3
+      },
+      {
+        "id": 27,
+        "amount": 1
+      }
+    ],
+    "manacost": 50
+  },
+  {
+    "id": 31,
+    "name": "Rope",
+    "recipe": [
+      {
+        "id":1,
+        "amount": 5
+      },
+      {
+        "id": 22,
+        "amount": 1
+      }
+    ],
+    "manacost": 10
+  },
+  {
+    "id": 32,
+    "name": "Silver Frame",
+    "recipe": [
+      {
+        "id": 7,
+        "amount": 5
+      },
+      {
+        "id": 10,
+        "amount": 5
+      },
+      {
+        "id": 25,
+        "amount": 3
+      }
+    ],
+    "manacost": 30
+  },
+  {
+    "id": 33,
+    "name": "Metal Plate",
+    "recipe": [
+      {
+        "id": 8,
+        "amount": 3
+      },
+      {
+        "id": 7,
+        "amount": 3
+      },
+      {
+        "id": 2,
+        "amount": 3
+      }
+    ],
+    "manacost": 10
+  },
+  {
+    "id": 34,
+    "name": "Metallic Fiber",
+    "recipe": [
+      {
+        "id": 10,
+        "amount": 15
+      },
+      {
+        "id": 12,
+        "amount": 2
+      }
+    ],
+    "manacost": 30
+  },
+  {
+    "id": 35,
+    "name": "Crafted Leather",
+    "recipe": [
+      {
+        "id": 5,
+        "amount": 4
+      },
+      {
+        "id": 20,
+        "amount": 4
+      },
+      {
+        "id": 12,
+        "amount": 1
+      }
+    ],
+    "manacost": 30
+  },
+  {
+    "id": 36,
+    "name": "Quality Cloth",
+    "recipe": [
+      {
+        "id": 9,
+        "amount": 11
+      },
+      {
+        "id": 7,
+        "amount": 3
+      }
+    ],
+    "manacost": 300
+  },
+  {
+    "id": 37,
+    "name": "Blacksmith Mold",
+    "recipe": [
+      {
+        "id": 23,
+        "amount": 11
+      },
+      {
+        "id": 25,
+        "amount": 5
+      },
+      {
+        "id": 29,
+        "amount": 2
+      },
+      {
+        "id": 15,
+        "amount": 2
+      }
+    ],
+    "manacost": 300
+  },
+  {
+    "id": 38,
+    "name": "Artisan Mold",
+    "recipe": [
+      {
+        "id": 23,
+        "amount": 11
+      },
+      {
+        "id": 25,
+        "amount": 5
+      },
+      {
+        "id": 30,
+        "amount": 2
+      },
+      {
+        "id": 13,
+        "amount": 2
+      }
+    ],
+    "manacost": 300
+  },
+  {
+    "id": 501,
+    "name": "Wrapping",
+    "recipe": [
+      {
+        "id": 9,
+        "amount": 3
+      },
+      {
+        "id": 22,
+        "amount": 3
+      }
+    ],
+    "manacost": 10
+  }
+]

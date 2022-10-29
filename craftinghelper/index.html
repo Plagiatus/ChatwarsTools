@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chatwars Craftinghelper</title>
+  <script src="script.js" defer></script>
+
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+    integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+  <link rel="stylesheet" href="style.css">
+  <link rel="shortcut icon" type="image/x-icon" href="../favicon.ico">
+  <!-- <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx" crossorigin="anonymous"></script> -->
+</head>
+
+<body>
+  <div class="container">
+    <h1>Plagiatus' Chatwars Craftinghelper</h1>
+    <hr>
+    <div>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Item ID</th>
+            <th>Amount</th>
+            <!-- <th>Controls</th> -->
+          </tr>
+        </thead>
+        <tbody id="crafting-items">
+
+        </tbody>
+      </table>
+      <div>
+        <svg onclick="additem()" width="2em" height="2em" viewBox="0 0 16 16" class="bi bi-plus-square-fill"
+          fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+          <path fill-rule="evenodd"
+            d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2zm6.5 4.5a.5.5 0 0 0-1 0v3h-3a.5.5 0 0 0 0 1h3v3a.5.5 0 0 0 1 0v-3h3a.5.5 0 0 0 0-1h-3v-3z" />
+        </svg>
+      </div>
+      <div id="search-helper">
+        <p>Forgot the item id? Use this.</p>
+        <div class="form-row">
+          <div class="form-group">
+            <input type="text" name="search-item-id" id="search-item-id" placeholder="item name here"
+              class="form-control">
+          </div>
+          <div class="form-group">
+            <select name="item-id-select" id="item-id-select" class="form-control">
+            </select>
+          </div>
+          <div class="form-group">
+            <output class="form-control" readonly id="item-id-output"></output>
+          </div>
+        </div>
+      </div>
+			<input type="button" value="Calculate" onclick="calculate()" class="btn btn-primary mb-2">
+			<!-- <div class="input-group">
+				<input type="number" value="0" class="form-control" min="0", max="20" id="bs-wonders-value">
+				<span class="input-group-text">Blacksmith Wonders</span>
+				<span class="input-group-text" style="text-align: right; width: 100%; display: block">Blacksmith Wonders tries to factor in a 2% chance per level per craft to result in double items.
+					<span class="alert-danger">Use with care, numbers are unconfirmed.</span>
+				</span>
+			</div> -->
+      <div class="alert alert-danger hidden" id="error-output"></div>
+    </div>
+
+    <!-- <fieldset>
+      < !-- <legend>Crafting</legend> -- >
+      <label for="crafting">What do you want to craft?</label>
+      <input type="text" name="crafting-item" id="crafting-item" placeholder="e.g. 38">
+      <br>
+      <label for="crafting">How much?</label>
+      <input type="text" name="crafting-amount" id="crafting-amount" placeholder="e.g. 5">
+      <br>
+      <input type="button" value="Calculate" onclick="calculate()" class="btn btn-primary">
+      <div class="alert alert-danger hidden" id="error-output"></div>
+    </fieldset> -->
+    <hr>
+    
+    <div id="result" class="hidden">
+      <h2>Calculation Results</h2>
+      <div class="row">
+        <div class="col-lg">
+          <h4>Unavailable</h4>
+          <div id="unavailable" class="alert alert-warning"></div>
+        </div>
+        <div class="col-lg">
+          <h4>Guild Withdrawals</h4>
+          <div id="withdraws"></div>
+        </div>
+        <div class="col-lg">
+          <h4>Crafting Steps</h4>
+          <input type="checkbox" name="crafting-toggle" id="crafting-toggle">
+          <label for="crafting-toggle">Combine Crafting Steps</label>
+          <div id="crafting"></div>
+        </div>
+        <div class="col-lg">
+          <h4>Items used from the players inventory</h4>
+          <div id="playerused"></div>
+        </div>
+      </div>
+      <hr>
+    </div>
+    <div id="inputs" class="row">
+      <fieldset class="form-group col-sm">
+        <legend>/stock</legend>
+        <button class="btn btn-info" onclick="clearStock()">clear</button>
+        <textarea name="playerstock" id="playerstock" cols="20" rows="3" class="form-text"
+          oninput="analyseStock()"></textarea>
+        <!-- <input type="button" value="analyse" onclick="analyseStock()" class="btn btn-secondary"> -->
+        <ul id="playerstock_processed" class="processed_stock list-group">
+        </ul>
+      </fieldset>
+      <fieldset class="form-group col-sm">
+        <legend>/g_stock</legend>
+        <button class="btn btn-info" onclick="clearGuildStock()">clear</button>
+        <textarea name="guildstock" id="guildstock" cols="20" rows="3" class="form-text"
+          oninput="analyseGuildStock()"></textarea>
+        <!-- <input type="button" value="analyse" onclick="analyseGuildStock()" class="btn btn-secondary"> -->
+        <ul id="guildstock_processed" class="processed_stock list-group">
+        </ul>
+      </fieldset>
+    </div>
+  </div>
+</body>
+
+<template id="template-items">
+  <tr>
+    <td><input type="text" placeholder="e.g. 38" class="form-control crafting-item crafting-input"></td>
+    <td><input type="text" placeholder="e.g. 5" class="form-control crafting-amount crafting-input"></td>
+    <td>
+      <svg width="2em" height="2em" viewBox="0 0 16 16" class="bi bi-dash-square-fill" fill="currentColor"
+        xmlns="http://www.w3.org/2000/svg">
+        <path fill-rule="evenodd"
+          d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2zm2.5 7.5a.5.5 0 0 0 0 1h7a.5.5 0 0 0 0-1h-7z" />
+      </svg>
+    </td>
+  </tr>
+</template>
+
+<template id="template-copy">
+  <button class="btn btn-secondary copy-button">
+    <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-clipboard" fill="currentColor"
+      xmlns="http://www.w3.org/2000/svg">
+      <path fill-rule="evenodd"
+        d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z" />
+      <path fill-rule="evenodd"
+        d="M9.5 1h-3a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z" />
+    </svg>
+  </button>
+</template>
+
+</html>
