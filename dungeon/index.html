@@ -7,6 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chatwars Dungeon Helper</title>
     <script src="cw_dungeon.js" defer></script>
+    <script src="graph.js" defer></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi" crossorigin="anonymous">
     <link rel="shortcut icon" type="image/x-icon" href="../favicon.ico">
@@ -70,15 +71,16 @@
         <button class="btn btn-primary mt-2" id="findPosition">Find Position</button><br>
     </div>
     <div class="p-2 border rounded">
-        <input type="checkbox" name="showProgress" id="showProgress">
+        <label for="maxSteps">your steps (30 default, 35 for premium)</label>
+        <input type="number" name="maxSteps" id="maxSteps" min="30" max="35" step="5" value="30" style="width: 3em;"><br>
+        <button class="btn btn-primary" id="calculatePathWithNodes">Calculate Path</button><br>
+        <!-- <input type="checkbox" name="showProgress" id="showProgress">
         <label for="showProgress">Show Progress (muuuch slower)</label>
         <input type="checkbox" name="doTheFastWay" id="doTheFastWay">
         <label for="doTheFastWay">Try the fast way (path won't be optimal)</label><br>
-        <label for="maxSteps">your steps (30 default, 35 for premium)</label>
-        <input type="number" name="maxSteps" id="maxSteps" min="30" max="35" step="5" value="30" style="width: 3em;"><br>
         <button class="btn btn-primary" id="calculatePath">Calculate Path</button>
         <output id="progressOutput"></output>
-        <button class="btn btn-warning" id="stopSearch">Stop</button><br>
+        <button class="btn btn-warning" id="stopSearch">Stop</button><br> -->
         <button class="btn btn-secondary mt-2" id="highlightStart">Highlight Start</button>
         <button class="btn btn-secondary mt-2" id="highlightBoss">Highlight Boss</button>
         <button class="btn btn-danger mt-2" id="resetMaze">Reset Maze</button><br>
