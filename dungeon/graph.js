@@ -9,6 +9,7 @@ let allCWNodes = new Map();
 let allCWNodesWithPath = new Map();
 let allCWConnections = new Map();
 let previousStepLength = 0;
+let needsRecalculation = false;
 function initCWNodes() {
     if (maze.length <= 0)
         throw new Error("Maze isn't loaded yet.");
@@ -33,7 +34,7 @@ function initCWNodes() {
 }
 function calculatePathWithNodes() {
     maxSteps = +document.getElementById("maxSteps").value;
-    if (previousStepLength != maxSteps) {
+    if (previousStepLength != maxSteps || needsRecalculation) {
         allCWConnections = new Map();
         for (let node of allCWNodes.values()) {
             findAllConnections(node, maxSteps);
@@ -152,5 +153,25 @@ function highlightStop(position) {
     p.arc(position.x * rasterSize + rasterSize / 2, position.y * rasterSize + rasterSize / 2, rasterSize, 0, Math.PI * 2);
     ctx.stroke(p);
 }
+function weightChange(event) {
+    switch (this.id) {
+        case "pathWeight":
+            tileToWeight.set(TileType.FOUNTAIN, +this.value);
+            break;
+        case "monsterWeight":
+            tileToWeight.set(TileType.MONSTER, +this.value);
+            break;
+        case "bonfireWeight":
+            tileToWeight.set(TileType.BONFIRE, +this.value);
+            break;
+    }
+    needsRecalculation = true;
+}
 document.getElementById("calculatePathWithNodes")?.addEventListener("click", calculatePathWithNodes);
+document.getElementById("pathWeight")?.addEventListener("change", weightChange);
+document.getElementById("monsterWeight")?.addEventListener("change", weightChange);
+document.getElementById("bonfireWeight")?.addEventListener("change", weightChange);
+tileToWeight.set(TileType.FOUNTAIN, +document.getElementById("fountainWeight").value ?? 1);
+tileToWeight.set(TileType.MONSTER, +document.getElementById("monsterWeight").value ?? 3);
+tileToWeight.set(TileType.BONFIRE, +document.getElementById("bonfireWeight").value ?? 5);
 //# sourceMappingURL=graph.js.map

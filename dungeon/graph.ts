@@ -29,6 +29,7 @@ let allCWNodes: Map<string, CWNode> = new Map<string, CWNode>();
 let allCWNodesWithPath: Map<string, CWNode> = new Map<string, CWNode>();
 let allCWConnections: Map<string, CWConnection[]> = new Map<string, CWConnection[]>();
 let previousStepLength: number = 0;
+let needsRecalculation: boolean = false;
 
 function initCWNodes() {
     if (maze.length <= 0) throw new Error("Maze isn't loaded yet.");
@@ -56,9 +57,9 @@ function initCWNodes() {
 
 function calculatePathWithNodes() {
     maxSteps = +(<HTMLInputElement>document.getElementById("maxSteps")).value;
-    if (previousStepLength != maxSteps) {
+    if (previousStepLength != maxSteps || needsRecalculation) {
         allCWConnections = new Map<string, CWConnection[]>();
-        for(let node of allCWNodes.values()){
+        for (let node of allCWNodes.values()) {
             findAllConnections(node, maxSteps);
         }
         previousStepLength = maxSteps;
@@ -179,12 +180,36 @@ function sortNodesByDistance(a: CWNode, b: CWNode) {
     return a.distance - b.distance;
 }
 
-function highlightStop(position: Vector2){
+function highlightStop(position: Vector2) {
     ctx.fillStyle = "rgba(0, 255, 0, 0.3)";
     ctx.strokeStyle = "#1fad2d";
     ctx.lineWidth = 3;
     let p = new Path2D();
-    p.arc(position.x * rasterSize +rasterSize / 2, position.y * rasterSize +rasterSize / 2, rasterSize, 0, Math.PI * 2);
+    p.arc(position.x * rasterSize + rasterSize / 2, position.y * rasterSize + rasterSize / 2, rasterSize, 0, Math.PI * 2);
     ctx.stroke(p);
 }
+
+function weightChange(this: HTMLInputElement, event: Event) {
+    switch (this.id) {
+        case "pathWeight":
+            tileToWeight.set(TileType.FOUNTAIN, +this.value);
+            break;
+        case "monsterWeight":
+            tileToWeight.set(TileType.MONSTER, +this.value);
+            break;
+        case "bonfireWeight":
+            tileToWeight.set(TileType.BONFIRE, +this.value);
+            break;
+    }
+
+    needsRecalculation = true;
+}
+
 document.getElementById("calculatePathWithNodes")?.addEventListener("click", calculatePathWithNodes);
+document.getElementById("pathWeight")?.addEventListener("change", weightChange);
+document.getElementById("monsterWeight")?.addEventListener("change", weightChange);
+document.getElementById("bonfireWeight")?.addEventListener("change", weightChange);
+
+tileToWeight.set(TileType.FOUNTAIN, +(<HTMLInputElement>document.getElementById("fountainWeight")).value ?? 1);
+tileToWeight.set(TileType.MONSTER, +(<HTMLInputElement>document.getElementById("monsterWeight")).value ?? 3);
+tileToWeight.set(TileType.BONFIRE, +(<HTMLInputElement>document.getElementById("bonfireWeight")).value ?? 5);
