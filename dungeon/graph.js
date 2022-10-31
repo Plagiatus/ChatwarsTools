@@ -10,6 +10,7 @@ let allCWNodesWithPath = new Map();
 let allCWConnections = new Map();
 let previousStepLength = 0;
 let needsRecalculation = false;
+let bossApproachOnlyThroughBonfires = true;
 function initCWNodes() {
     if (maze.length <= 0)
         throw new Error("Maze isn't loaded yet.");
@@ -41,14 +42,23 @@ function calculatePathWithNodes() {
         }
         previousStepLength = maxSteps;
         calculateDistanceToBoss();
+        needsRecalculation = false;
     }
     findPathFromNodes();
 }
 function findAllConnections(node, maxSteps) {
     let newConnections = findConnectionsRecursive(node.position, maxSteps, [], 0);
-    //remove first one because it's the same.
+    //remove first one because it connects to itself.
     if (newConnections[0].position.x === node.position.x && newConnections[0].position.y === node.position.y) {
         newConnections.splice(0, 1);
+    }
+    if (bossApproachOnlyThroughBonfires && node.type === TileType.BOSS) {
+        for (let i = 0; i < newConnections.length; i++) {
+            if (maze[newConnections[i].position.y][newConnections[i].position.x].type === TileType.FOUNTAIN) {
+                newConnections.splice(i, 1);
+                i--;
+            }
+        }
     }
     allCWConnections.set(vectorToString(node.position), newConnections);
 }
@@ -167,11 +177,17 @@ function weightChange(event) {
     }
     needsRecalculation = true;
 }
+function approachBoss(e) {
+    bossApproachOnlyThroughBonfires = this.checked;
+    needsRecalculation = true;
+}
 document.getElementById("calculatePathWithNodes")?.addEventListener("click", calculatePathWithNodes);
 document.getElementById("pathWeight")?.addEventListener("change", weightChange);
 document.getElementById("monsterWeight")?.addEventListener("change", weightChange);
 document.getElementById("bonfireWeight")?.addEventListener("change", weightChange);
+document.getElementById("approachBossOnlyThroughBonfire")?.addEventListener("change", approachBoss);
 tileToWeight.set(TileType.FOUNTAIN, +document.getElementById("fountainWeight").value ?? 1);
 tileToWeight.set(TileType.MONSTER, +document.getElementById("monsterWeight").value ?? 3);
 tileToWeight.set(TileType.BONFIRE, +document.getElementById("bonfireWeight").value ?? 5);
+bossApproachOnlyThroughBonfires = document.getElementById("approachBossOnlyThroughBonfire").checked;
 //# sourceMappingURL=graph.js.map
