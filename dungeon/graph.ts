@@ -129,6 +129,7 @@ function calculateDistanceToBoss() {
             if (remainingNodePosition >= 0 && targetNode.distance > newDistance) {
                 targetNode.distance = newDistance;
                 targetNode.pathToPrevious = connection.path;
+                targetNode.pathToPrevious.reverse();
                 targetNode.previous = lowestNode.position;
                 allCWNodesWithPath.set(vectorToString(targetNode.position), targetNode);
                 remainingNodes[remainingNodePosition] = targetNode;
@@ -150,7 +151,7 @@ function findPathFromNodes() {
     let atBossPosition: boolean = false;
     while (!atBossPosition) {
         let node: CWNode = <CWNode>allCWNodesWithPath.get(vectorToString(position));
-        fullPath.push(...(node.pathToPrevious?.reverse() ?? []));
+        fullPath.push(...(node.pathToPrevious ?? []));
         if (node.type === TileType.BOSS) {
             atBossPosition = true;
             break;
