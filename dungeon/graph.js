@@ -107,6 +107,7 @@ function calculateDistanceToBoss() {
     }
 }
 function findPathFromNodes() {
+    hideError();
     if (startPosition[0] < 0 || startPosition[1] < 0)
         throw new Error("Invalid Start Position");
     let type = maze[startPosition[1]][startPosition[0]].type;

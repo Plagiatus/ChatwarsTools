@@ -140,6 +140,7 @@ function calculateDistanceToBoss() {
 }
 
 function findPathFromNodes() {
+    hideError();
     if (startPosition[0] < 0 || startPosition[1] < 0) throw new Error("Invalid Start Position");
     let type = maze[startPosition[1]][startPosition[0]].type;
     if (type !== TileType.BONFIRE && type !== TileType.FOUNTAIN && type !== TileType.BOSS) throw new Error("Start Position needs to be a fountain or bonfire");

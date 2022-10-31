@@ -73,7 +73,7 @@
     <div class="p-2 border rounded">
         <label for="maxSteps">your steps (30 default, 35 for premium)</label>
         <input type="number" name="maxSteps" id="maxSteps" min="30" max="35" step="5" value="30" style="width: 3em;"><br>
-        <button class="btn btn-primary" id="calculatePathWithNodes">Calculate Path</button><br>
+        <button class="btn btn-primary" id="calculatePathWithNodes">Calculate Path to Boss</button><br>
         <!-- <input type="checkbox" name="showProgress" id="showProgress">
         <label for="showProgress">Show Progress (muuuch slower)</label>
         <input type="checkbox" name="doTheFastWay" id="doTheFastWay">
@@ -81,8 +81,12 @@
         <button class="btn btn-primary" id="calculatePath">Calculate Path</button>
         <output id="progressOutput"></output>
         <button class="btn btn-warning" id="stopSearch">Stop</button><br> -->
-        <button class="btn btn-secondary mt-2" id="highlightStart">Highlight Start</button>
-        <button class="btn btn-secondary mt-2" id="highlightBoss">Highlight Boss</button>
+        <!-- <button class="btn btn-secondary mt-2" id="highlightStart">Highlight Start</button>
+        <button class="btn btn-secondary mt-2" id="highlightBoss">Highlight Boss</button> -->
+        <input type="checkbox" name="highlightStartCheck" id="highlightStartCheck">
+        <label for="highlightStartCheck">Highlight Start</label>
+        <input type="checkbox" name="highlightBossCheck" id="highlightBossCheck">
+        <label for="highlightBossCheck">Highlight Boss</label><br>
         <button class="btn btn-danger mt-2" id="resetMaze">Reset Maze</button><br>
     </div>
     <p class="bg-danger text-white p-2" id="error-message" hidden></p>

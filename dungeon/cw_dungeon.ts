@@ -30,6 +30,8 @@ type LoadingAlgorithm = {
 let maze: Tile[][] = [];
 let bossPosition: [number, number] = [-1, -1];
 let startPosition: [number, number] = [-1, -1];
+let bossHighlighted: boolean = (<HTMLInputElement>document.getElementById("highlightBossCheck")).checked ?? false;
+let startHighlighted: boolean = (<HTMLInputElement>document.getElementById("highlightStartCheck")).checked ?? false;
 
 let rasterSize: number = 16;
 let inputMazeType: InputType = "cw";
@@ -45,8 +47,10 @@ document.getElementById("findPosition")?.addEventListener("click", findPosition)
 document.getElementById("resetMaze")?.addEventListener("click", resetMaze);
 document.getElementById("calculatePath")?.addEventListener("click", (e) => { calculatePath(e).catch(error => handleError(error)) });
 document.getElementById("stopSearch")?.addEventListener("click", stopSearch);
-document.getElementById("highlightBoss")?.addEventListener("click", highlightBoss);
-document.getElementById("highlightStart")?.addEventListener("click", ()=>{highlightStart(true)});
+// document.getElementById("highlightBoss")?.addEventListener("click", highlightBoss);
+// document.getElementById("highlightStart")?.addEventListener("click", ()=>{highlightStart(true)});
+document.getElementById("highlightBossCheck")?.addEventListener("change", highlightBossCheck);
+document.getElementById("highlightStartCheck")?.addEventListener("change", highlightStartCheck);
 canvas.addEventListener("click", getCanvasPosition);
 
 function loadImage() {
@@ -72,6 +76,7 @@ function loadImage() {
         canvas.height = img.height;
         ctx?.drawImage(img, 0, 0);
         loadMaze(img.width, img.height);
+        resetMaze();
     })
     //@ts-ignore
     let file = (<HTMLInputElement>document.getElementById("imageInput")).files[0];
@@ -293,6 +298,8 @@ function parsePattern(): Tile[][] {
 function resetMaze() {
     hideError();
     ctx.putImageData(imgData, 0, 0);
+    if (startPosition[0] >= 0 && startPosition[1] >= 0) highlightStart();
+    if (bossHighlighted) highlightBoss();
 }
 
 function getCanvasPosition(e: MouseEvent) {
@@ -302,7 +309,7 @@ function getCanvasPosition(e: MouseEvent) {
     let y: number = Math.floor((e.clientY - rect.top) / rasterSize);
 
     startPosition = [x, y];
-    highlightStart(false);
+    resetMaze();
 }
 
 
@@ -503,13 +510,22 @@ function highlightBoss() {
     ctx.fill(p);
 }
 
-function highlightStart(big: boolean = false) {
+function highlightStart(big: boolean = startHighlighted) {
     if (startPosition[0] < 0 || startPosition[1] < 0) throw new Error("Invalid Start Position");
     ctx.fillStyle = "rgba(0, 0, 255, 0.2)";
     ctx.strokeStyle = "rgba(0, 0, 255, 0.8)";
     let p: Path2D = new Path2D();
     p.rect(startPosition[0] * rasterSize, startPosition[1] * rasterSize, rasterSize, rasterSize);
     ctx.stroke(p)
-    if(big) p.arc(startPosition[0] * rasterSize, startPosition[1] * rasterSize, rasterSize * 10, 0, Math.PI * 2);
+    if (big) p.arc(startPosition[0] * rasterSize, startPosition[1] * rasterSize, rasterSize * 10, 0, Math.PI * 2);
     ctx.fill(p);
+}
+
+function highlightBossCheck(e: Event) {
+    bossHighlighted = (<HTMLInputElement>e.target).checked;
+    resetMaze();
+}
+function highlightStartCheck(e: Event) {
+    startHighlighted = (<HTMLInputElement>e.target).checked;
+    resetMaze();
 }
