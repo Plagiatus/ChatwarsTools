@@ -80,6 +80,7 @@ function loadImage() {
     })
     //@ts-ignore
     let file = (<HTMLInputElement>document.getElementById("imageInput")).files[0];
+    if(!file) throw new Error("No File Selected")
     img.src = URL.createObjectURL(file);
 
 }
