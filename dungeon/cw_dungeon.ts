@@ -168,9 +168,9 @@ const colorsToTypesJorg: AssArrTT = {
 const colorsToTypesCW: Map<TileType, number[]> = new Map<TileType, number[]>([
     [TileType.WALL, [0, 0, 0, 255]],
     [TileType.PATH, [255, 255, 255, 255]],
-    [TileType.TREASURE, [90, 173, 78, 255]],
+    [TileType.FOUNTAIN, [90, 173, 78, 255]],
     [TileType.BONFIRE, [223, 169, 48, 255]],
-    [TileType.FOUNTAIN, [79, 196, 127, 255]],
+    [TileType.TREASURE, [79, 196, 127, 255]],
     [TileType.MONSTER, [140, 127, 204, 255]],
     [TileType.FAMOUSPLACE, [65, 69, 204, 255]],
     [TileType.BOSS, [199, 76, 50, 255]],
