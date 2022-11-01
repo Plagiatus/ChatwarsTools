@@ -47,7 +47,7 @@ function initCWNodes() {
                 allCWNodes.set(vectorToString(position), node);
 
                 //init all connections
-                findAllConnections(node, maxSteps);
+                allCWConnections.set(vectorToString(node.position), findAllConnections(node, maxSteps));
             }
         }
     }
@@ -61,7 +61,7 @@ function calculatePathWithNodes() {
     if (previousStepLength != maxSteps || needsRecalculation) {
         allCWConnections = new Map<string, CWConnection[]>();
         for (let node of allCWNodes.values()) {
-            findAllConnections(node, maxSteps);
+            allCWConnections.set(vectorToString(node.position), findAllConnections(node, maxSteps));
         }
         previousStepLength = maxSteps;
         calculateDistanceToBoss();
@@ -70,7 +70,7 @@ function calculatePathWithNodes() {
     findPathFromNodes();
 }
 
-function findAllConnections(node: CWNode, maxSteps: number) {
+function findAllConnections(node: CWNode, maxSteps: number): CWConnection[] {
     let newConnections: CWConnection[] = findConnectionsRecursive(node.position, maxSteps, [], 0);
 
     //remove first one because it connects to itself.
@@ -79,15 +79,15 @@ function findAllConnections(node: CWNode, maxSteps: number) {
     }
 
     if (bossApproachOnlyThroughBonfires && node.type === TileType.BOSS) {
-        for(let i: number = 0; i < newConnections.length; i++){
-            if(maze[newConnections[i].position.y][newConnections[i].position.x].type === TileType.FOUNTAIN){
+        for (let i: number = 0; i < newConnections.length; i++) {
+            if (maze[newConnections[i].position.y][newConnections[i].position.x].type === TileType.FOUNTAIN) {
                 newConnections.splice(i, 1);
                 i--;
             }
         }
     }
 
-    allCWConnections.set(vectorToString(node.position), newConnections);
+    return newConnections;
 }
 
 function findConnectionsRecursive(position: Vector2, remainingSteps: number, path: Vector2[], currentPathCost: number): CWConnection[] {
@@ -155,9 +155,18 @@ function findPathFromNodes() {
     hideError();
     if (startPosition[0] < 0 || startPosition[1] < 0) throw new Error("Invalid Start Position");
     let type = maze[startPosition[1]][startPosition[0]].type;
-    if (type !== TileType.BONFIRE && type !== TileType.FOUNTAIN && type !== TileType.BOSS) throw new Error("Start Position needs to be a fountain or bonfire");
-    let position: Vector2 = { x: startPosition[0], y: startPosition[1] };
-    let node: CWNode = <CWNode>allCWNodesWithPath.get(vectorToString(position));
+    let position: Vector2;
+    let node: CWNode;
+    if (type !== TileType.BONFIRE && type !== TileType.FOUNTAIN && type !== TileType.BOSS) {
+        let closestConnections = findAndHighlightClosestFountainsAndBonfires();
+        if(closestConnections.length == 0) throw new Error("No Fountains or Bonfires in reach.")
+        closestConnections.sort(sortConnectionsByDistanceAndBonfire);
+        position = closestConnections[0].position;
+        node = <CWNode>allCWNodesWithPath.get(vectorToString(position));
+    } else {
+        position = { x: startPosition[0], y: startPosition[1] };
+        node = <CWNode>allCWNodesWithPath.get(vectorToString(position));
+    }
     if (node.distance === Infinity) throw new Error("No Path exists from here");
 
     let fullPath: Vector2[] = [];
@@ -169,7 +178,7 @@ function findPathFromNodes() {
         if (node.type === TileType.BOSS) {
             atBossPosition = true;
             break;
-        } else if (node.type === TileType.BONFIRE){
+        } else if (node.type === TileType.BONFIRE) {
             currentPathColor = randomHSLA();
             dashed = !dashed;
         }
@@ -195,12 +204,17 @@ function vectorToString(v: Vector2) {
 function sortNodesByDistance(a: CWNode, b: CWNode) {
     return a.distance - b.distance;
 }
+function sortConnectionsByDistanceAndBonfire(a: CWConnection, b: CWConnection) {
+    if(maze[a.position.y][a.position.x].type === TileType.FOUNTAIN && maze[b.position.y][b.position.x].type !== TileType.FOUNTAIN) return 1;
+    if(maze[a.position.y][a.position.x].type !== TileType.FOUNTAIN && maze[b.position.y][b.position.x].type === TileType.FOUNTAIN) return -1;
+    return a.path.length - b.path.length;
+}
 
 
 let currentPathColor: string = randomHSLA();
 
-function randomHSLA(alpha: number = 0.8){
-    return `hsla(${Math.floor(Math.random()*360)}, 70%, 50%, ${alpha})`;
+function randomHSLA(alpha: number = 0.8) {
+    return `hsla(${Math.floor(Math.random() * 360)}, 70%, 50%, ${alpha})`;
 }
 
 function highlightStop(position: Vector2, color: string = currentPathColor) {
@@ -229,9 +243,19 @@ function weightChange(this: HTMLInputElement, event: Event) {
     needsRecalculation = true;
 }
 
-function approachBoss(this: HTMLInputElement, e: Event){
+function approachBoss(this: HTMLInputElement, e: Event) {
     bossApproachOnlyThroughBonfires = this.checked;
     needsRecalculation = true;
+}
+
+function findAndHighlightClosestFountainsAndBonfires(): CWConnection[] {
+    if (maze[startPosition[1]][startPosition[0]].type === TileType.WALL) throw new Error("Start Position cannot be on a wall.");
+    let connections = findAllConnections({ position: { x: startPosition[0], y: startPosition[1] }, distance: Infinity, type: TileType.WALL, visited: false }, maxSteps);
+    currentPathColor = randomHSLA(0.4);
+    for (let connection of connections) {
+        drawPath(vectorArrayToTupleArray(connection.path), false, currentPathColor);
+    }
+    return connections;
 }
 
 document.getElementById("calculatePathWithNodes")?.addEventListener("click", calculatePathWithNodes);

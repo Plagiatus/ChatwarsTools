@@ -25,7 +25,7 @@ function initCWNodes() {
                 let node = { distance: Infinity, position, type, visited: false };
                 allCWNodes.set(vectorToString(position), node);
                 //init all connections
-                findAllConnections(node, maxSteps);
+                allCWConnections.set(vectorToString(node.position), findAllConnections(node, maxSteps));
             }
         }
     }
@@ -38,7 +38,7 @@ function calculatePathWithNodes() {
     if (previousStepLength != maxSteps || needsRecalculation) {
         allCWConnections = new Map();
         for (let node of allCWNodes.values()) {
-            findAllConnections(node, maxSteps);
+            allCWConnections.set(vectorToString(node.position), findAllConnections(node, maxSteps));
         }
         previousStepLength = maxSteps;
         calculateDistanceToBoss();
@@ -60,7 +60,7 @@ function findAllConnections(node, maxSteps) {
             }
         }
     }
-    allCWConnections.set(vectorToString(node.position), newConnections);
+    return newConnections;
 }
 function findConnectionsRecursive(position, remainingSteps, path, currentPathCost) {
     if (remainingSteps < 0)
@@ -122,10 +122,20 @@ function findPathFromNodes() {
     if (startPosition[0] < 0 || startPosition[1] < 0)
         throw new Error("Invalid Start Position");
     let type = maze[startPosition[1]][startPosition[0]].type;
-    if (type !== TileType.BONFIRE && type !== TileType.FOUNTAIN && type !== TileType.BOSS)
-        throw new Error("Start Position needs to be a fountain or bonfire");
-    let position = { x: startPosition[0], y: startPosition[1] };
-    let node = allCWNodesWithPath.get(vectorToString(position));
+    let position;
+    let node;
+    if (type !== TileType.BONFIRE && type !== TileType.FOUNTAIN && type !== TileType.BOSS) {
+        let closestConnections = findAndHighlightClosestFountainsAndBonfires();
+        if (closestConnections.length == 0)
+            throw new Error("No Fountains or Bonfires in reach.");
+        closestConnections.sort(sortConnectionsByDistanceAndBonfire);
+        position = closestConnections[0].position;
+        node = allCWNodesWithPath.get(vectorToString(position));
+    }
+    else {
+        position = { x: startPosition[0], y: startPosition[1] };
+        node = allCWNodesWithPath.get(vectorToString(position));
+    }
     if (node.distance === Infinity)
         throw new Error("No Path exists from here");
     let fullPath = [];
@@ -161,6 +171,13 @@ function vectorToString(v) {
 function sortNodesByDistance(a, b) {
     return a.distance - b.distance;
 }
+function sortConnectionsByDistanceAndBonfire(a, b) {
+    if (maze[a.position.y][a.position.x].type === TileType.FOUNTAIN && maze[b.position.y][b.position.x].type !== TileType.FOUNTAIN)
+        return 1;
+    if (maze[a.position.y][a.position.x].type !== TileType.FOUNTAIN && maze[b.position.y][b.position.x].type === TileType.FOUNTAIN)
+        return -1;
+    return a.path.length - b.path.length;
+}
 let currentPathColor = randomHSLA();
 function randomHSLA(alpha = 0.8) {
     return `hsla(${Math.floor(Math.random() * 360)}, 70%, 50%, ${alpha})`;
@@ -191,6 +208,16 @@ function weightChange(event) {
 function approachBoss(e) {
     bossApproachOnlyThroughBonfires = this.checked;
     needsRecalculation = true;
+}
+function findAndHighlightClosestFountainsAndBonfires() {
+    if (maze[startPosition[1]][startPosition[0]].type === TileType.WALL)
+        throw new Error("Start Position cannot be on a wall.");
+    let connections = findAllConnections({ position: { x: startPosition[0], y: startPosition[1] }, distance: Infinity, type: TileType.WALL, visited: false }, maxSteps);
+    currentPathColor = randomHSLA(0.4);
+    for (let connection of connections) {
+        drawPath(vectorArrayToTupleArray(connection.path), false, currentPathColor);
+    }
+    return connections;
 }
 document.getElementById("calculatePathWithNodes")?.addEventListener("click", calculatePathWithNodes);
 document.getElementById("pathWeight")?.addEventListener("change", weightChange);
