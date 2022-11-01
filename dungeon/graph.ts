@@ -159,7 +159,7 @@ function findPathFromNodes() {
     let node: CWNode;
     if (type !== TileType.BONFIRE && type !== TileType.FOUNTAIN && type !== TileType.BOSS) {
         let closestConnections = findAndHighlightClosestFountainsAndBonfires();
-        if(closestConnections.length == 0) throw new Error("No Fountains or Bonfires in reach.")
+        if (closestConnections.length == 0) throw new Error("No Fountains or Bonfires in reach.")
         closestConnections.sort(sortConnectionsByDistanceAndBonfire);
         position = closestConnections[0].position;
         node = <CWNode>allCWNodesWithPath.get(vectorToString(position));
@@ -205,16 +205,16 @@ function sortNodesByDistance(a: CWNode, b: CWNode) {
     return a.distance - b.distance;
 }
 function sortConnectionsByDistanceAndBonfire(a: CWConnection, b: CWConnection) {
-    if(maze[a.position.y][a.position.x].type === TileType.FOUNTAIN && maze[b.position.y][b.position.x].type !== TileType.FOUNTAIN) return 1;
-    if(maze[a.position.y][a.position.x].type !== TileType.FOUNTAIN && maze[b.position.y][b.position.x].type === TileType.FOUNTAIN) return -1;
+    if (maze[a.position.y][a.position.x].type === TileType.FOUNTAIN && maze[b.position.y][b.position.x].type !== TileType.FOUNTAIN) return -1;
+    if (maze[a.position.y][a.position.x].type !== TileType.FOUNTAIN && maze[b.position.y][b.position.x].type === TileType.FOUNTAIN) return 1;
     return a.path.length - b.path.length;
 }
 
 
+let previousColorAngle = Math.floor(Math.random() * 360);
 let currentPathColor: string = randomHSLA();
-
 function randomHSLA(alpha: number = 0.8) {
-    return `hsla(${Math.floor(Math.random() * 360)}, 70%, 50%, ${alpha})`;
+    return `hsla(${previousColorAngle += 60}, 70%, 50%, ${alpha})`;
 }
 
 function highlightStop(position: Vector2, color: string = currentPathColor) {
@@ -255,6 +255,7 @@ function findAndHighlightClosestFountainsAndBonfires(): CWConnection[] {
     for (let connection of connections) {
         drawPath(vectorArrayToTupleArray(connection.path), false, currentPathColor);
     }
+    currentPathColor = randomHSLA();
     return connections;
 }
 

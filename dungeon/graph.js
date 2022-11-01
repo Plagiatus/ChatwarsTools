@@ -173,14 +173,15 @@ function sortNodesByDistance(a, b) {
 }
 function sortConnectionsByDistanceAndBonfire(a, b) {
     if (maze[a.position.y][a.position.x].type === TileType.FOUNTAIN && maze[b.position.y][b.position.x].type !== TileType.FOUNTAIN)
-        return 1;
-    if (maze[a.position.y][a.position.x].type !== TileType.FOUNTAIN && maze[b.position.y][b.position.x].type === TileType.FOUNTAIN)
         return -1;
+    if (maze[a.position.y][a.position.x].type !== TileType.FOUNTAIN && maze[b.position.y][b.position.x].type === TileType.FOUNTAIN)
+        return 1;
     return a.path.length - b.path.length;
 }
+let previousColorAngle = Math.floor(Math.random() * 360);
 let currentPathColor = randomHSLA();
 function randomHSLA(alpha = 0.8) {
-    return `hsla(${Math.floor(Math.random() * 360)}, 70%, 50%, ${alpha})`;
+    return `hsla(${previousColorAngle += 60}, 70%, 50%, ${alpha})`;
 }
 function highlightStop(position, color = currentPathColor) {
     ctx.fillStyle = color;
@@ -217,6 +218,7 @@ function findAndHighlightClosestFountainsAndBonfires() {
     for (let connection of connections) {
         drawPath(vectorArrayToTupleArray(connection.path), false, currentPathColor);
     }
+    currentPathColor = randomHSLA();
     return connections;
 }
 document.getElementById("calculatePathWithNodes")?.addEventListener("click", calculatePathWithNodes);
