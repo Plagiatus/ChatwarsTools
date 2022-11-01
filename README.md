@@ -6,3 +6,7 @@ Dungeon Improvements ToDo:
 
 - allow calculation from anywhere, not just Bonfire / Fountain
 - allow for "chest hunting" paths.  
+- improve sorting algorithm speed by just saving all paths up to 35 but only considering the ones up to a length of 30 for the shorter length, which coupled with adding an index of reasons for weights instead of just the weights to the nodes should eliminate the need for recalculation on algorithm change.
+- remove duplicates of paths with the same weight and only keep the shorter ones.
+
+- mark consumables as used / defeated / disabled (esp. fountains, also monsters)
