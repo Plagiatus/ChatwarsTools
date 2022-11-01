@@ -9,6 +9,7 @@ enum TileType {
     BOSS,
     UNKNOWN,
     FOUNTAINORTREASURE,
+    NOTWALL,
 }
 
 interface Tile {
@@ -224,6 +225,8 @@ function findPosition() {
                         if (mazeType !== TileType.FOUNTAIN && mazeType !== TileType.TREASURE) {
                             found = false;
                         }
+                    } else if (patternType === TileType.NOTWALL){
+                        if(mazeType === TileType.WALL) found = false;
                     }
                     else if (patternType !== mazeType)
                         found = false;
@@ -263,12 +266,13 @@ const inputToTypes: AssArrTT = {
     "Z": TileType.BOSS,
     "U": TileType.FOUNTAINORTREASURE,
     "M": TileType.MONSTER,
+    "N": TileType.NOTWALL,
 }
 function parsePattern(): Tile[][] {
     let textInput: string = (<HTMLInputElement>document.getElementById("patternInput")).value;
     textInput = textInput.replace("You stopped and tried to mark your way on paper. You got a map like this:", "")
         .replace("Unfortunately, you ran out of space on a piece of paper. There's nowhere to draw some of the places you have visited", "")
-        .replaceAll("🔲", "?").replaceAll("⬛️", "X").replaceAll("⬜️", ".").replaceAll("🟩", "U").replaceAll("🟦", "P").replaceAll("🟪", "M").replaceAll("🟥", "Z").replaceAll("🟧", "B").replaceAll("🟨", "?")
+        .replaceAll("🔲", "?").replaceAll("⬛️", "X").replaceAll("⬜️", ".").replaceAll("🟩", "U").replaceAll("🟦", "P").replaceAll("🟪", "M").replaceAll("🟥", "Z").replaceAll("🟧", "B").replaceAll("🟨", "N")
         .toUpperCase().trim();
     let textInputSplit: string[] = textInput.split("\n");
     let textInputFullySplit: string[][] = [];

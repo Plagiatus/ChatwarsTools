@@ -11,6 +11,7 @@ var TileType;
     TileType[TileType["BOSS"] = 7] = "BOSS";
     TileType[TileType["UNKNOWN"] = 8] = "UNKNOWN";
     TileType[TileType["FOUNTAINORTREASURE"] = 9] = "FOUNTAINORTREASURE";
+    TileType[TileType["NOTWALL"] = 10] = "NOTWALL";
 })(TileType || (TileType = {}));
 let maze = [];
 let bossPosition = [-1, -1];
@@ -192,6 +193,10 @@ function findPosition() {
                             found = false;
                         }
                     }
+                    else if (patternType === TileType.NOTWALL) {
+                        if (mazeType === TileType.WALL)
+                            found = false;
+                    }
                     else if (patternType !== mazeType)
                         found = false;
                 }
@@ -226,12 +231,13 @@ const inputToTypes = {
     "Z": TileType.BOSS,
     "U": TileType.FOUNTAINORTREASURE,
     "M": TileType.MONSTER,
+    "N": TileType.NOTWALL,
 };
 function parsePattern() {
     let textInput = document.getElementById("patternInput").value;
     textInput = textInput.replace("You stopped and tried to mark your way on paper. You got a map like this:", "")
         .replace("Unfortunately, you ran out of space on a piece of paper. There's nowhere to draw some of the places you have visited", "")
-        .replaceAll("🔲", "?").replaceAll("⬛️", "X").replaceAll("⬜️", ".").replaceAll("🟩", "U").replaceAll("🟦", "P").replaceAll("🟪", "M").replaceAll("🟥", "Z").replaceAll("🟧", "B").replaceAll("🟨", "?")
+        .replaceAll("🔲", "?").replaceAll("⬛️", "X").replaceAll("⬜️", ".").replaceAll("🟩", "U").replaceAll("🟦", "P").replaceAll("🟪", "M").replaceAll("🟥", "Z").replaceAll("🟧", "B").replaceAll("🟨", "N")
         .toUpperCase().trim();
     let textInputSplit = textInput.split("\n");
     let textInputFullySplit = [];
