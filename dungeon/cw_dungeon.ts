@@ -81,7 +81,7 @@ function loadImage() {
     })
     //@ts-ignore
     let file = (<HTMLInputElement>document.getElementById("imageInput")).files[0];
-    if(!file) throw new Error("No File Selected")
+    if (!file) throw new Error("No File Selected")
     img.src = URL.createObjectURL(file);
 
 }
@@ -225,8 +225,8 @@ function findPosition() {
                         if (mazeType !== TileType.FOUNTAIN && mazeType !== TileType.TREASURE) {
                             found = false;
                         }
-                    } else if (patternType === TileType.NOTWALL){
-                        if(mazeType === TileType.WALL) found = false;
+                    } else if (patternType === TileType.NOTWALL) {
+                        if (mazeType === TileType.WALL) found = false;
                     }
                     else if (patternType !== mazeType)
                         found = false;
@@ -452,7 +452,7 @@ function drawPaths() {
     }
 }
 
-function drawPath(path: [number, number][], fat: boolean = false, color?: string) {
+function drawPath(path: [number, number][], fat: boolean = false, color?: string, dashed: boolean = false) {
     let p: Path2D = new Path2D();
     let position = path[0] ?? [-1, -1];
     p.moveTo(position[1] * rasterSize + rasterSize / 2, position[0] * rasterSize + rasterSize / 2);
@@ -460,8 +460,10 @@ function drawPath(path: [number, number][], fat: boolean = false, color?: string
         p.lineTo(path[i][1] * rasterSize + rasterSize / 2, path[i][0] * rasterSize + rasterSize / 2);
     }
     ctx.strokeStyle = color ?? `hsl(${Math.floor(Math.random() * 360)}, 70%, 40%)`;
+    ctx.setLineDash([]);
     if (showProgress) ctx.strokeStyle = "black";
     if (fat) ctx.lineWidth = inputMazeType == "cw" ? 3 : 5;
+    if (dashed) ctx.setLineDash([rasterSize / 2, rasterSize / 4]);
     ctx.stroke(p);
     ctx.lineWidth = 1;
 }

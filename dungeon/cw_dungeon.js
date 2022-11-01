@@ -407,7 +407,7 @@ function drawPaths() {
         drawPath(path);
     }
 }
-function drawPath(path, fat = false, color) {
+function drawPath(path, fat = false, color, dashed = false) {
     let p = new Path2D();
     let position = path[0] ?? [-1, -1];
     p.moveTo(position[1] * rasterSize + rasterSize / 2, position[0] * rasterSize + rasterSize / 2);
@@ -415,10 +415,13 @@ function drawPath(path, fat = false, color) {
         p.lineTo(path[i][1] * rasterSize + rasterSize / 2, path[i][0] * rasterSize + rasterSize / 2);
     }
     ctx.strokeStyle = color ?? `hsl(${Math.floor(Math.random() * 360)}, 70%, 40%)`;
+    ctx.setLineDash([]);
     if (showProgress)
         ctx.strokeStyle = "black";
     if (fat)
         ctx.lineWidth = inputMazeType == "cw" ? 3 : 5;
+    if (dashed)
+        ctx.setLineDash([rasterSize / 2, rasterSize / 4]);
     ctx.stroke(p);
     ctx.lineWidth = 1;
 }
