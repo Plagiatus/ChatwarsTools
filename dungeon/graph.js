@@ -131,6 +131,7 @@ function findPathFromNodes() {
         closestConnections.sort(sortConnectionsByDistanceAndBonfire);
         position = closestConnections[0].position;
         node = allCWNodesWithPath.get(vectorToString(position));
+        highlightStop(position);
     }
     else {
         position = { x: startPosition[0], y: startPosition[1] };
