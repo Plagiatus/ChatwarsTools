@@ -162,17 +162,22 @@ function findPathFromNodes() {
 
     let fullPath: Vector2[] = [];
     let atBossPosition: boolean = false;
+    let dashed: boolean = false;
     while (!atBossPosition) {
         let node: CWNode = <CWNode>allCWNodesWithPath.get(vectorToString(position));
         fullPath.push(...(node.pathToPrevious ?? []));
         if (node.type === TileType.BOSS) {
             atBossPosition = true;
             break;
+        } else if (node.type === TileType.BONFIRE){
+            currentPathColor = randomHSLA();
+            dashed = !dashed;
         }
         position = <Vector2>node.previous;
         highlightStop(position);
+        drawPath(vectorArrayToTupleArray(node.pathToPrevious ?? []), true, currentPathColor, dashed);
     }
-    drawPath(vectorArrayToTupleArray(fullPath), true, "#1fad2d");
+    // drawPath(vectorArrayToTupleArray(fullPath), true, currentPathColor);
 }
 
 function vectorArrayToTupleArray(arr: Vector2[]): [number, number][] {
@@ -191,9 +196,17 @@ function sortNodesByDistance(a: CWNode, b: CWNode) {
     return a.distance - b.distance;
 }
 
-function highlightStop(position: Vector2) {
-    ctx.fillStyle = "rgba(0, 255, 0, 0.3)";
-    ctx.strokeStyle = "#1fad2d";
+
+let currentPathColor: string = randomHSLA();
+
+function randomHSLA(alpha: number = 0.8){
+    return `hsla(${Math.floor(Math.random()*360)}, 70%, 50%, ${alpha})`;
+}
+
+function highlightStop(position: Vector2, color: string = currentPathColor) {
+    ctx.fillStyle = color;
+    ctx.strokeStyle = color;
+    ctx.setLineDash([]);
     ctx.lineWidth = 3;
     let p = new Path2D();
     p.arc(position.x * rasterSize + rasterSize / 2, position.y * rasterSize + rasterSize / 2, rasterSize, 0, Math.PI * 2);
