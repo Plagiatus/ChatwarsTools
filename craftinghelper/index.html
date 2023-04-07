@@ -25,7 +25,8 @@
           <tr>
             <th>Item ID</th>
             <th>Amount</th>
-            <!-- <th>Controls</th> -->
+            <th>Ingredients to guild?</th>
+            <th>Delete</th>
           </tr>
         </thead>
         <tbody id="crafting-items">
@@ -100,6 +101,10 @@
           <h4>Items used from the players inventory</h4>
           <div id="playerused"></div>
         </div>
+        <div class="col-lg">
+          <h4>Deposit to guild</h4>
+          <div id="deposit"></div>
+        </div>
       </div>
       <hr>
     </div>
@@ -130,6 +135,7 @@
   <tr>
     <td><input type="text" placeholder="e.g. 38" class="form-control crafting-item crafting-input"></td>
     <td><input type="text" placeholder="e.g. 5" class="form-control crafting-amount crafting-input"></td>
+    <td><input type="checkbox" class="form-control crafting-to-guild crafting-input"></td>
     <td>
       <svg width="2em" height="2em" viewBox="0 0 16 16" class="bi bi-dash-square-fill" fill="currentColor"
         xmlns="http://www.w3.org/2000/svg">

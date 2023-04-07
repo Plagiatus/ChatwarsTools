@@ -15,7 +15,8 @@ interface StockItem extends Ingredient {
 }
 
 interface CalculateItem extends OfficialItem {
-	amount: number;
+	amount: number,
+	toGuild: boolean,
 }
 
 interface OfficialItem {
@@ -187,6 +188,7 @@ function updateErrorDisplay(error?: string, warning: boolean = false) {
 function readNeededItems(): CalculateItem[] {
 	let ids: HTMLCollectionOf<HTMLInputElement> = <HTMLCollectionOf<HTMLInputElement>>document.getElementsByClassName("crafting-item");
 	let amounts: HTMLCollectionOf<HTMLInputElement> = <HTMLCollectionOf<HTMLInputElement>>document.getElementsByClassName("crafting-amount");
+	let toGuilds: HTMLCollectionOf<HTMLInputElement> = <HTMLCollectionOf<HTMLInputElement>>document.getElementsByClassName("crafting-to-guild");
 	if (ids.length != amounts.length) {
 		updateErrorDisplay("Amount of items doesn't match the amount of amounts.");
 		return [];
@@ -202,6 +204,7 @@ function readNeededItems(): CalculateItem[] {
 		amounts[i].setCustomValidity("");
 		let idToCraft: string = ids[i].value.trim();
 		let amountToCraft: number = parseInt(amounts[i].value.trim());
+		let depositToGuild: boolean = toGuilds[i].checked;
 		if (!idToCraft) {
 			errored = true;
 			ids[i].setCustomValidity("Item field empty.");
@@ -223,7 +226,7 @@ function readNeededItems(): CalculateItem[] {
 			amounts[i].setCustomValidity("Not a valid item amount.")
 			continue;
 		}
-		result.push(itemToCalcItem(item, amountToCraft));
+		result.push(itemToCalcItem(item, amountToCraft, depositToGuild));
 	}
 
 	if (result.length <= 0) {
@@ -241,16 +244,65 @@ function calculateNeededItems(neededItems: CalculateItem[], bsWonders: number) {
 	let neededFromPlayer: Ingredient[] = [];
 	let neededFromGuild: Ingredient[] = [];
 	let notAvailable: Ingredient[] = [];
+	let depositToGuild: Ingredient[] = [];
 	let itemsToCraft: CalculateItem[] = [];
 	let amountWithBSWDeducted: number = 1 / (1 + (bsWonders * 0.02));
 
-	for(let item of neededItems){
-		item.amount = Math.ceil(item.amount * amountWithBSWDeducted);
+	for (let item of neededItems) {
+		if (!item.toGuild) {
+			item.amount = Math.ceil(item.amount * amountWithBSWDeducted);
+		}
 	}
 
 
 	do {
 		let currentItem: CalculateItem = <CalculateItem>neededItems.pop();
+		if (currentItem.toGuild) {
+			for (let i in currentItem.recipe) {
+				let amountNeeded = Math.ceil(parseInt(currentItem.recipe[i]) * currentItem.amount);
+				let item: OfficialItem = <OfficialItem>getItemInformation(i);
+				if (!item) {
+					throw Error(`Item not found: ${i}`);
+				};
+
+				let guilditem: StockItem | undefined = availableGuildItems.find(el => el.id == item.id && el.active);
+				if (guilditem) {
+					guilditem.amount -= amountNeeded;
+					if (guilditem.amount < 0) {
+						amountNeeded = guilditem.amount * -1;
+						guilditem.amount = 0;
+					} else {
+						continue;
+					}
+				}
+
+				let playeritem: StockItem | undefined = availablePlayerItems.find(el => el.id == item.id && el.active);
+				if (playeritem) {
+					let amount: number = playeritem.amount;
+					playeritem.amount -= amountNeeded;
+					if (playeritem.amount < 0) {
+						amountNeeded = playeritem.amount * -1;
+						neededFromPlayer.push({ id: item.id, amount: amount })
+						depositToGuild.push({ id: item.id, amount: amount })
+						playeritem.amount = 0;
+					} else {
+						neededFromPlayer.push({ id: item.id, amount: amountNeeded })
+						depositToGuild.push({ id: item.id, amount: amountNeeded })
+						continue;
+					}
+				}
+
+				if (amountNeeded > 0) {
+					if (item && Object.keys(item.recipe).length > 0) {
+						neededItems.push(itemToCalcItem(item, amountNeeded));
+						depositToGuild.push({id: item.id, amount: amountNeeded});
+					} else if (item) {
+						notAvailable.push({ amount: amountNeeded, id: item.id });
+					}
+				}
+			}
+			continue;
+		}
 		for (let i in currentItem.recipe) {
 			let amountNeeded = Math.ceil(parseInt(currentItem.recipe[i]) * currentItem.amount * amountWithBSWDeducted);
 			let item: OfficialItem = <OfficialItem>getItemInformation(i);
@@ -297,6 +349,7 @@ function calculateNeededItems(neededItems: CalculateItem[], bsWonders: number) {
 	neededFromGuild = combine(neededFromGuild).sort(sortIngredients);
 	neededFromPlayer = combine(neededFromPlayer).sort(sortIngredients);
 	notAvailable = combine(notAvailable).sort(sortIngredients);
+	depositToGuild = combine(depositToGuild).sort(sortIngredients);
 	itemsToCraft = itemsToCraft.reverse();
 
 	console.group("results");
@@ -304,12 +357,14 @@ function calculateNeededItems(neededItems: CalculateItem[], bsWonders: number) {
 	console.log("Not Available:", notAvailable);
 	console.log("Crafting Steps:", itemsToCraft);
 	console.log("Taken from Player:", neededFromPlayer);
+	console.log("Deposit to guild:", depositToGuild);
 	console.groupEnd();
 
 	empty(document.getElementById("unavailable")!).appendChild(formatUnavailable(notAvailable));
 	empty(document.getElementById("withdraws")!).appendChild(formatWithdraws(neededFromGuild));
 	// empty(document.getElementById("crafting")!).appendChild(formatCrafting(itemsToCraft));
 	empty(document.getElementById("playerused")!).appendChild(formatPlayerUsed(neededFromPlayer));
+	empty(document.getElementById("deposit")!).appendChild(formatDeposit(depositToGuild));
 	document.getElementById("result")?.classList.remove("hidden");
 
 	itemsToCraftStorage = JSON.parse(JSON.stringify(itemsToCraft));
@@ -318,8 +373,8 @@ function calculateNeededItems(neededItems: CalculateItem[], bsWonders: number) {
 }
 
 
-function itemToCalcItem(item: OfficialItem, amount: number): CalculateItem {
-	return { amount: amount, id: item.id, name: item.name, craftMana: item.craftMana, recipe: item.recipe }
+function itemToCalcItem(item: OfficialItem, amount: number, depositToGuild: boolean = false): CalculateItem {
+	return { amount: amount, id: item.id, name: item.name, craftMana: item.craftMana, recipe: item.recipe, toGuild: depositToGuild }
 }
 
 function combine(igarr: Ingredient[]): Ingredient[] {
@@ -342,7 +397,7 @@ function combineCalcitem(igarr: CalculateItem[]): CalculateItem[] {
 		if (elem) {
 			elem.amount += i.amount;
 		} else {
-			newig.push({ id: i.id, amount: i.amount, craftMana: i.craftMana, name: i.name, recipe: JSON.parse(JSON.stringify(i.recipe)) });
+			newig.push({ id: i.id, amount: i.amount, craftMana: i.craftMana, name: i.name, recipe: JSON.parse(JSON.stringify(i.recipe)), toGuild: false });
 		}
 	}
 	return newig;
@@ -422,6 +477,19 @@ function formatPlayerUsed(arr: Ingredient[]): HTMLElement {
 		ul.appendChild(li);
 	}
 	return ul;
+}
+
+function formatDeposit(arr: Ingredient[]): HTMLElement {
+	if (arr.length<=0) return returnNone();
+	let ol: HTMLOListElement = document.createElement("ol");
+	for(let i of arr) {
+		let li: HTMLLIElement = document.createElement("li");
+		li.innerHTML = `<code class="crafting-step">/gd_${i.id}_${i.amount}</code>`;
+		ol.appendChild(li);
+		addCopyButton(li, `/gd_${i.id}_${i.amount}`);
+	}
+
+	return ol;
 }
 
 function returnNone(): HTMLElement {

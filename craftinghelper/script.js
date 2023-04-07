@@ -155,6 +155,7 @@ function updateErrorDisplay(error, warning = false) {
 function readNeededItems() {
     let ids = document.getElementsByClassName("crafting-item");
     let amounts = document.getElementsByClassName("crafting-amount");
+    let toGuilds = document.getElementsByClassName("crafting-to-guild");
     if (ids.length != amounts.length) {
         updateErrorDisplay("Amount of items doesn't match the amount of amounts.");
         return [];
@@ -170,6 +171,7 @@ function readNeededItems() {
         amounts[i].setCustomValidity("");
         let idToCraft = ids[i].value.trim();
         let amountToCraft = parseInt(amounts[i].value.trim());
+        let depositToGuild = toGuilds[i].checked;
         if (!idToCraft) {
             errored = true;
             ids[i].setCustomValidity("Item field empty.");
@@ -191,7 +193,7 @@ function readNeededItems() {
             amounts[i].setCustomValidity("Not a valid item amount.");
             continue;
         }
-        result.push(itemToCalcItem(item, amountToCraft));
+        result.push(itemToCalcItem(item, amountToCraft, depositToGuild));
     }
     if (result.length <= 0) {
         updateErrorDisplay("No valid entires found.");
@@ -207,13 +209,63 @@ function calculateNeededItems(neededItems, bsWonders) {
     let neededFromPlayer = [];
     let neededFromGuild = [];
     let notAvailable = [];
+    let depositToGuild = [];
     let itemsToCraft = [];
     let amountWithBSWDeducted = 1 / (1 + (bsWonders * 0.02));
     for (let item of neededItems) {
-        item.amount = Math.ceil(item.amount * amountWithBSWDeducted);
+        if (!item.toGuild) {
+            item.amount = Math.ceil(item.amount * amountWithBSWDeducted);
+        }
     }
     do {
         let currentItem = neededItems.pop();
+        if (currentItem.toGuild) {
+            for (let i in currentItem.recipe) {
+                let amountNeeded = Math.ceil(parseInt(currentItem.recipe[i]) * currentItem.amount);
+                let item = getItemInformation(i);
+                if (!item) {
+                    throw Error(`Item not found: ${i}`);
+                }
+                ;
+                let guilditem = availableGuildItems.find(el => el.id == item.id && el.active);
+                if (guilditem) {
+                    guilditem.amount -= amountNeeded;
+                    if (guilditem.amount < 0) {
+                        amountNeeded = guilditem.amount * -1;
+                        guilditem.amount = 0;
+                    }
+                    else {
+                        continue;
+                    }
+                }
+                let playeritem = availablePlayerItems.find(el => el.id == item.id && el.active);
+                if (playeritem) {
+                    let amount = playeritem.amount;
+                    playeritem.amount -= amountNeeded;
+                    if (playeritem.amount < 0) {
+                        amountNeeded = playeritem.amount * -1;
+                        neededFromPlayer.push({ id: item.id, amount: amount });
+                        depositToGuild.push({ id: item.id, amount: amount });
+                        playeritem.amount = 0;
+                    }
+                    else {
+                        neededFromPlayer.push({ id: item.id, amount: amountNeeded });
+                        depositToGuild.push({ id: item.id, amount: amountNeeded });
+                        continue;
+                    }
+                }
+                if (amountNeeded > 0) {
+                    if (item && Object.keys(item.recipe).length > 0) {
+                        neededItems.push(itemToCalcItem(item, amountNeeded));
+                        depositToGuild.push({ id: item.id, amount: amountNeeded });
+                    }
+                    else if (item) {
+                        notAvailable.push({ amount: amountNeeded, id: item.id });
+                    }
+                }
+            }
+            continue;
+        }
         for (let i in currentItem.recipe) {
             let amountNeeded = Math.ceil(parseInt(currentItem.recipe[i]) * currentItem.amount * amountWithBSWDeducted);
             let item = getItemInformation(i);
@@ -263,24 +315,27 @@ function calculateNeededItems(neededItems, bsWonders) {
     neededFromGuild = combine(neededFromGuild).sort(sortIngredients);
     neededFromPlayer = combine(neededFromPlayer).sort(sortIngredients);
     notAvailable = combine(notAvailable).sort(sortIngredients);
+    depositToGuild = combine(depositToGuild).sort(sortIngredients);
     itemsToCraft = itemsToCraft.reverse();
     console.group("results");
     console.log("Needed from Guild:", neededFromGuild);
     console.log("Not Available:", notAvailable);
     console.log("Crafting Steps:", itemsToCraft);
     console.log("Taken from Player:", neededFromPlayer);
+    console.log("Deposit to guild:", depositToGuild);
     console.groupEnd();
     empty(document.getElementById("unavailable")).appendChild(formatUnavailable(notAvailable));
     empty(document.getElementById("withdraws")).appendChild(formatWithdraws(neededFromGuild));
     // empty(document.getElementById("crafting")!).appendChild(formatCrafting(itemsToCraft));
     empty(document.getElementById("playerused")).appendChild(formatPlayerUsed(neededFromPlayer));
+    empty(document.getElementById("deposit")).appendChild(formatDeposit(depositToGuild));
     document.getElementById("result")?.classList.remove("hidden");
     itemsToCraftStorage = JSON.parse(JSON.stringify(itemsToCraft));
     itemsToCraftCombinedStorage = JSON.parse(JSON.stringify(combineCalcitem(itemsToCraft)));
     document.getElementById("crafting-toggle")?.dispatchEvent(new Event("change"));
 }
-function itemToCalcItem(item, amount) {
-    return { amount: amount, id: item.id, name: item.name, craftMana: item.craftMana, recipe: item.recipe };
+function itemToCalcItem(item, amount, depositToGuild = false) {
+    return { amount: amount, id: item.id, name: item.name, craftMana: item.craftMana, recipe: item.recipe, toGuild: depositToGuild };
 }
 function combine(igarr) {
     let newig = [];
@@ -303,7 +358,7 @@ function combineCalcitem(igarr) {
             elem.amount += i.amount;
         }
         else {
-            newig.push({ id: i.id, amount: i.amount, craftMana: i.craftMana, name: i.name, recipe: JSON.parse(JSON.stringify(i.recipe)) });
+            newig.push({ id: i.id, amount: i.amount, craftMana: i.craftMana, name: i.name, recipe: JSON.parse(JSON.stringify(i.recipe)), toGuild: false });
         }
     }
     return newig;
@@ -375,6 +430,18 @@ function formatPlayerUsed(arr) {
         ul.appendChild(li);
     }
     return ul;
+}
+function formatDeposit(arr) {
+    if (arr.length <= 0)
+        return returnNone();
+    let ol = document.createElement("ol");
+    for (let i of arr) {
+        let li = document.createElement("li");
+        li.innerHTML = `<code class="crafting-step">/gd_${i.id}_${i.amount}</code>`;
+        ol.appendChild(li);
+        addCopyButton(li, `/gd_${i.id}_${i.amount}`);
+    }
+    return ol;
 }
 function returnNone() {
     let elem = document.createElement("span");
