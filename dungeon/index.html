@@ -8,6 +8,7 @@
     <title>Chatwars Dungeon Helper</title>
     <script src="cw_dungeon.js" defer></script>
     <script src="graph.js" defer></script>
+    <script src="tabs.js" defer></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi" crossorigin="anonymous">
     <link rel="shortcut icon" type="image/x-icon" href="../favicon.ico">
@@ -71,42 +72,60 @@
         </div>
         <button class="btn btn-primary mt-2" id="findPosition">Find Position</button><br>
     </div>
-    <div class="d-flex">
-        <div class="p-2 border rounded me-2">
-            <label for="maxSteps">your steps (30 default, 35 for premium)</label>
-            <input type="number" name="maxSteps" id="maxSteps" min="30" max="35" step="5" value="30"
-                style="width: 3em;"><br>
-            <button class="btn btn-primary my-2" id="calculatePathWithNodes">Calculate Path to Boss</button><br>
-            <!-- <input type="checkbox" name="showProgress" id="showProgress">
-                <label for="showProgress">Show Progress (muuuch slower)</label>
-                <input type="checkbox" name="doTheFastWay" id="doTheFastWay">
-                <label for="doTheFastWay">Try the fast way (path won't be optimal)</label><br>
-                <button class="btn btn-primary" id="calculatePath">Calculate Path</button>
-                <output id="progressOutput"></output>
-                <button class="btn btn-warning" id="stopSearch">Stop</button><br> -->
-            <!-- <button class="btn btn-secondary mt-2" id="highlightStart">Highlight Start</button>
-                    <button class="btn btn-secondary mt-2" id="highlightBoss">Highlight Boss</button> -->
-            <input type="checkbox" name="highlightStartCheck" id="highlightStartCheck">
-            <label for="highlightStartCheck">Highlight Start</label><br>
-            <input type="checkbox" name="highlightBossCheck" id="highlightBossCheck">
-            <label for="highlightBossCheck">Highlight Boss</label><br>
-            <button class="btn btn-danger mt-2" id="resetMaze">Reset Maze</button><br>
+    <ul class="nav nav-tabs" id="algoTab" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="boss-tab" data-tab-toggle="tab" data-tab-target="#boss" type="button" role="tab" aria-controls="boss" aria-selected="true">Boss Rush</button></li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="treasure-tab" data-tab-toggle="tab" data-tab-target="#treasure" type="button" role="tab" aria-controls="treasure" aria-selected="true">Treasure Run</button></li>
+    </ul>
+    <div id="boss">
+        <h2>Get to the boss with as few bonfires as possible.</h2>
+        <div class="d-flex">
+            <div class="p-2 border rounded me-2">
+                <label for="maxSteps">your steps (30 default, 35 for premium)</label>
+                <input type="number" name="maxSteps" id="maxSteps" min="30" max="35" step="5" value="30"
+                    style="width: 3em;"><br>
+                <button class="btn btn-primary my-2" id="calculatePathWithNodes">Calculate Path to Boss</button><br>
+                <!-- <input type="checkbox" name="showProgress" id="showProgress">
+                    <label for="showProgress">Show Progress (muuuch slower)</label>
+                    <input type="checkbox" name="doTheFastWay" id="doTheFastWay">
+                    <label for="doTheFastWay">Try the fast way (path won't be optimal)</label><br>
+                    <button class="btn btn-primary" id="calculatePath">Calculate Path</button>
+                    <output id="progressOutput"></output>
+                    <button class="btn btn-warning" id="stopSearch">Stop</button><br> -->
+                <!-- <button class="btn btn-secondary mt-2" id="highlightStart">Highlight Start</button>
+                        <button class="btn btn-secondary mt-2" id="highlightBoss">Highlight Boss</button> -->
+                <input type="checkbox" name="highlightStartCheck" id="highlightStartCheck">
+                <label for="highlightStartCheck">Highlight Start</label><br>
+                <input type="checkbox" name="highlightBossCheck" id="highlightBossCheck">
+                <label for="highlightBossCheck">Highlight Boss</label><br>
+                <button class="btn btn-danger mt-2" id="resetMaze">Reset Maze</button><br>
+            </div>
+            <div class="p-2 border rounded">
+                <h3>Algorithm Adjustments</h3>
+                <input type="checkbox" name="approachBossOnlyThroughBonfire" id="approachBossOnlyThroughBonfire" checked>
+                <label for="approachBossOnlyThroughBonfire">Approach Boss only through Bonfire</label><br>
+                <p>Adjust the numbers to tweak the searching algorithm to avoid certain stops.<br><em>The higher the number, the less likely the path will include this tile.</em></p>
+                <label for="fountainWeight">Fountain Weight</label>
+                <input type="number" name="fountainWeight" id="fountainWeight" min="1" step="1" value="1" style="width: 4em;"><br>
+                <label for="bonfireWeight">Bonfire Weight</label>
+                <input type="number" name="bonfireWeight" id="bonfireWeight" min="1" step="1" value="5" style="width: 4em;"><br>
+                <label for="monsterWeight">Monster Weight</label>
+                <input type="number" name="monsterWeight" id="monsterWeight" min="1" step="1" value="3" style="width: 4em;"><br>
+            </div>
         </div>
-        <div class="p-2 border rounded">
-            <h2>Algorithm Adjustments</h2>
-            <input type="checkbox" name="approachBossOnlyThroughBonfire" id="approachBossOnlyThroughBonfire" checked>
-            <label for="approachBossOnlyThroughBonfire">Approach Boss only through Bonfire</label><br>
-            <p>Adjust the numbers to tweak the searching algorithm to avoid certain stops.<br><em>The higher the number, the less likely the path will include this tile.</em></p>
-            <label for="fountainWeight">Fountain Weight</label>
-            <input type="number" name="fountainWeight" id="fountainWeight" min="1" step="1" value="1" style="width: 4em;"><br>
-            <label for="bonfireWeight">Bonfire Weight</label>
-            <input type="number" name="bonfireWeight" id="bonfireWeight" min="1" step="1" value="5" style="width: 4em;"><br>
-            <label for="monsterWeight">Monster Weight</label>
-            <input type="number" name="monsterWeight" id="monsterWeight" min="1" step="1" value="3" style="width: 4em;"><br>
-        </div>
+    </div>
+    <div class="d-flex" id="treasure">
+        <h2>Treasure Run coming soon™</h2>
     </div>
     <p class="bg-danger text-white p-2" id="error-message" hidden></p>
     <canvas width="2" height="2"></canvas>
 </body>
 
 </html>
+
+<style>
+    .hidden {
+        display: none !important;
+    }
+</style>
