@@ -106,7 +106,7 @@ function calculateDistanceToBoss() {
             let targetNode = allCWNodesWithPath.get(vectorToString(connection.position));
             let newDistance = lowestNode.distance + connection.weight;
             let remainingNodePosition = remainingNodes.findIndex(value => vectorToString(value.position) === vectorToString(targetNode.position));
-            if (remainingNodePosition >= 0 && targetNode.distance > newDistance) {
+            if (remainingNodePosition >= 0 && (targetNode.distance > newDistance || (targetNode.distance == newDistance && targetNode.pathToPrevious && targetNode.pathToPrevious.length > connection.path.length))) {
                 targetNode.distance = newDistance;
                 targetNode.pathToPrevious = connection.path;
                 targetNode.pathToPrevious.reverse();
