@@ -16,8 +16,8 @@ var TileType;
 let maze = [];
 let bossPosition = [-1, -1];
 let startPosition = [-1, -1];
-let bossHighlighted = document.getElementById("highlightBossCheck").checked ?? false;
-let startHighlighted = document.getElementById("highlightStartCheck").checked ?? false;
+let bossHighlighted = document.getElementById("highlightBossCheck")?.checked ?? false;
+let startHighlighted = document.getElementById("highlightStartCheck")?.checked ?? false;
 let rasterSize = 16;
 let inputMazeType = "cw";
 let imgData = new ImageData(1, 1);
@@ -34,6 +34,9 @@ document.getElementById("stopSearch")?.addEventListener("click", stopSearch);
 document.getElementById("highlightBossCheck")?.addEventListener("change", highlightBossCheck);
 document.getElementById("highlightStartCheck")?.addEventListener("change", highlightStartCheck);
 canvas.addEventListener("click", getCanvasPosition);
+/**
+ * Loads the image from the file input into the canvas.
+ */
 function loadImage() {
     hideError();
     let fd = new FormData(document.forms[0]);
@@ -69,6 +72,9 @@ const loadingAlgorithms = {
     "cw": loadCWMaze,
     "jorg": loadJorgMaze,
 };
+/**
+ * Loads the maze in Tile[][] form from the image input, by choosing the selected algorithm
+ */
 function loadMaze(width, height) {
     imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
     ctx.save();
@@ -76,8 +82,12 @@ function loadMaze(width, height) {
     emptyMaze = [];
     loadingAlgorithms[inputMazeType](width, height);
     console.log(maze);
-    initCWNodes();
+    initCWNodes(); // -> graph.ts
 }
+/**
+ * Loading the maze using Jörgs output.
+ * This is much more stable and reliable as it can just take a single pixel color in the tile and infer the type from that.
+ */
 function loadJorgMaze(width, height) {
     let offsetX = 7;
     let offsetY = 9;
@@ -94,11 +104,16 @@ function loadJorgMaze(width, height) {
         maze.push(row);
     }
 }
+/**
+ * Loading the maze using the CW native output.
+ * Not very accurate as due to the jpg compression bleeding and blurring are an issue.
+ */
 function loadCWMaze(width, height) {
     for (let y = 0; y < height; y += rasterSize) {
         let row = [];
         emptyMaze.push([]);
         for (let x = 0; x < width; x += rasterSize) {
+            // calculate the average color for the entire tile
             let average = [];
             for (let subY = 0; subY < rasterSize; subY++) {
                 for (let subX = 0; subX < rasterSize; subX++) {
@@ -111,6 +126,7 @@ function loadCWMaze(width, height) {
             for (let i = 0; i < average.length; i++) {
                 average[i] /= rasterSize * rasterSize;
             }
+            // try to infer tile type based on this average color
             let type = colorToTileTypeCW(average);
             row.push({ type, activated: false, visitCount: 0 });
             if (type === TileType.BOSS)
@@ -119,6 +135,10 @@ function loadCWMaze(width, height) {
         maze.push(row);
     }
 }
+/**
+ * Helper function that returns color information from the image data
+ * @returns the colors as an array [R, G, B, A]
+ */
 function getColorValuesForCoordinate(x, y, width) {
     const red = y * (width * 4) + x * 4;
     return [imgData.data[red], imgData.data[red + 1], imgData.data[red + 2], imgData.data[red + 3]];
@@ -143,12 +163,23 @@ const colorsToTypesCW = new Map([
     [TileType.FAMOUSPLACE, [65, 69, 204, 255]],
     [TileType.BOSS, [199, 76, 50, 255]],
 ]);
+/**
+ * @returns the tile type of a specific color in the Jorg map.
+ *
+ * This is a 1:1 matching, as we can rely on the colors to be exact values.
+ */
 function colorToTileTypeJorg(colors) {
     let type = colorsToTypesJorg[colors.toString()];
     if (type !== undefined)
         return type;
     throw Error(`Tile could not be identified: ${colors.toString()}`);
 }
+/**
+ * @returns the tile type that most closely matches the given colors for the CW map.
+ *
+ * This is more tricky than the Jorg one, due to the jpg compression the colors vary wildly and we need to find the one that is closest to the given average,
+ * instead of being able to rely on fixed colors. Occasionally produces wrong outputs especially for the two similar greens.
+ */
 function colorToTileTypeCW(colors) {
     let differencesToColors = [];
     for (let tileType of colorsToTypesCW.keys()) {
@@ -165,6 +196,9 @@ function colorToTileTypeCW(colors) {
         return type;
     throw Error(`Tile could not be identified: ${colors.toString()}`);
 }
+/**
+ * Finds and displays all the spots that a given pattern could be located in
+ */
 function findPosition() {
     hideError();
     let pattern = parsePattern();
@@ -211,6 +245,9 @@ function findPosition() {
         throw new Error("Couldn't find the position on the map.");
     }
 }
+/**
+ * Draws a rectangle on the map at the specified coordinates with the (through the pattern) specified size
+ */
 function outputFoundPosition(mazeX, mazeY, pattern) {
     console.log("found position", mazeX, mazeY);
     ctx.fillStyle = "rgba(0, 255, 0, 0.2)";
@@ -233,6 +270,9 @@ const inputToTypes = {
     "M": TileType.MONSTER,
     "N": TileType.NOTWALL,
 };
+/**
+ * Helper Function that parses the input pattern from the "find position" functionality.
+ */
 function parsePattern() {
     let textInput = document.getElementById("patternInput").value;
     textInput = textInput.replace("You stopped and tried to mark your way on paper. You got a map like this:", "")
@@ -285,6 +325,12 @@ let shortestPathLegth = Infinity;
 let maxSteps = 30;
 let showProgress = false;
 let doTheFastWay = false;
+/**
+ * A depth-first search for paths.
+ * It's slow, finds bads paths and shouldn't be used anymore.
+ * @deprecated Use calculatePathWithNodes() in graph.ts instead.
+ * @param e
+ */
 async function calculatePath(e) {
     hideError();
     resetMaze();
@@ -323,6 +369,10 @@ async function calculatePath(e) {
     e.target.disabled = false;
 }
 let antiBlockingCounter = 0;
+/**
+ * Old helper function to find path through depth search
+ * @deprecated
+ */
 async function calculatePathRecursive(x, y, stepsLeft, stateOfMaze, path, shortestPathToHere) {
     if (overrideStopSearch)
         return;
@@ -401,12 +451,19 @@ async function calculatePathRecursive(x, y, stepsLeft, stateOfMaze, path, shorte
     // await calculatePathRecursive(x, y + 1, stepsLeft - 1, newMaze, newPath);
     // await calculatePathRecursive(x, y - 1, stepsLeft - 1, newMaze, newPath);
 }
+/**
+ * Draws all paths that were found through the old method.
+ * @deprecated
+ */
 function drawPaths() {
     resetMaze();
     for (let path of foundPaths) {
         drawPath(path);
     }
 }
+/**
+ * Draws a path (segment) onto the map
+ */
 function drawPath(path, fat = false, color, dashed = false) {
     let p = new Path2D();
     let position = path[0] ?? [-1, -1];
@@ -431,14 +488,26 @@ async function delay(ms) {
     });
 }
 let progressOutput = document.getElementById("progressOutput");
+/**
+ * Old function that would show the current results of the old system
+ * @deprecated
+ */
 function updateProgress(done = false) {
     progressOutput.innerText = `found paths: ${foundPaths.length} - took ${progress++} steps`;
     if (done)
         progressOutput.innerText += " - done";
 }
+/**
+ * Part of the old system, combining two objects into one
+ * @deprecated
+ */
 function tileToTileWithSteps(tile, steps) {
     return { activated: tile.activated, steps, type: tile.type, visitCount: tile.visitCount };
 }
+/**
+ * Set the variable to override the continuation of the searching
+ * @deprecated
+ */
 function stopSearch() {
     hideError();
     overrideStopSearch = true;
@@ -446,18 +515,32 @@ function stopSearch() {
 let errorDisplay = document.getElementById("error-message");
 window.addEventListener("error", handleError);
 window.addEventListener("unhandledrejection", handleError);
+/**
+ * Display any errors that arise during the execution.
+ *
+ * Allows for the throwing of errors anywhere in the code and it being shown through this.
+ */
 function handleError(ev) {
     errorDisplay.hidden = false;
-    if (ev.message) {
-        errorDisplay.innerText = ev.message;
-    }
     if (ev.reason) {
         errorDisplay.innerText = ev.reason;
     }
+    else if (ev.message) {
+        errorDisplay.innerText = ev.message;
+    }
+    else {
+        errorDisplay.innerText = "An unknown Error occured. Check the console for details.";
+    }
 }
+/**
+ * Hides the Error output. Should be called when a new calculation is started.
+ */
 function hideError() {
     errorDisplay.hidden = true;
 }
+/**
+ * Draws a circle on the map to make it easier to spot the boss position.
+ */
 function highlightBoss() {
     if (bossPosition[0] < 0 || bossPosition[1] < 0)
         throw new Error("Invalid Boss Position");
@@ -466,6 +549,9 @@ function highlightBoss() {
     ctx.fillStyle = "rgba(255, 0, 0, 0.2)";
     ctx.fill(p);
 }
+/**
+ * Draws a circle on the map to make it easier to spot the selected starting position.
+ */
 function highlightStart(big = startHighlighted) {
     if (startPosition[0] < 0 || startPosition[1] < 0)
         throw new Error("Invalid Start Position");

@@ -1,4 +1,5 @@
 "use strict";
+// find all tabs and give them click detections to switch between contents
 let tabs = document.querySelectorAll("button[role=tab]");
 for (let tab of tabs) {
     tab.addEventListener("click", activateTab);
