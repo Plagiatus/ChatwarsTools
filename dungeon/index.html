@@ -8,6 +8,7 @@
     <title>Chatwars Dungeon Helper</title>
     <script src="cw_dungeon.js" defer></script>
     <script src="graph.js" defer></script>
+    <script src="treasure.js" defer></script>
     <script src="tabs.js" defer></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi" crossorigin="anonymous">
@@ -115,8 +116,12 @@
             </div>
         </div>
     </div>
-    <div class="d-flex" id="treasure">
-        <h2>Treasure Run coming soon™</h2>
+    <div id="treasure">
+        <h2>Treasure Run coming soon™</h2><br>
+        <div>
+            <p>Here, have a preview to play with. (the controls are still in the Boss Rush tab)</p>
+            <button class="btn btn-primary my-2" id="calculateTreasureRun">Calculate Treasure Run</button><br>
+        </div>
     </div>
     <p class="bg-danger text-white p-2" id="error-message" hidden></p>
     <canvas width="2" height="2"></canvas>
