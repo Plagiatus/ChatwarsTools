@@ -464,12 +464,22 @@ function drawPaths() {
 /**
  * Draws a path (segment) onto the map
  */
-function drawPath(path, fat = false, color, dashed = false) {
+function drawPath(path, fat = false, color, dashed = false, directional = false) {
     let p = new Path2D();
     let position = path[0] ?? [-1, -1];
+    let offsetX = 0, offsetY = 0;
     p.moveTo(position[1] * rasterSize + rasterSize / 2, position[0] * rasterSize + rasterSize / 2);
     for (let i = 1; i < path.length; i++) {
-        p.lineTo(path[i][1] * rasterSize + rasterSize / 2, path[i][0] * rasterSize + rasterSize / 2);
+        if (directional) {
+            if (path.length - 1 == i || i == 0) {
+                offsetX = offsetY = 0;
+            }
+            else {
+                offsetY = Math.sign(path[i][1] - path[i + 1][1]) * rasterSize / 4;
+                offsetX = Math.sign(path[i][0] - path[i + 1][0]) * rasterSize / 4 * -1;
+            }
+        }
+        p.lineTo(path[i][1] * rasterSize + rasterSize / 2 + offsetX, path[i][0] * rasterSize + rasterSize / 2 + offsetY);
     }
     ctx.strokeStyle = color ?? `hsl(${Math.floor(Math.random() * 360)}, 70%, 40%)`;
     if (showProgress)
