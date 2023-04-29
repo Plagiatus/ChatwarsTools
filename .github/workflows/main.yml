@@ -4,15 +4,23 @@ on:
     branches: [ main ]
   workflow_dispatch:
 jobs:
-  deploy:
-    name: Upload via ftp
+  build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-    - name: Upload ftp
-      uses: sebastianpopp/ftp-action@releases/v2
-      with:
-        host: ${{ secrets.FTP_SERVER }}
-        user: ${{ secrets.FTP_USERNAME }}
-        password: ${{ secrets.FTP_PASSWORD }}
-        options: "--delete --asci --only-newer"
+      - uses: actions/checkout@v3
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with: 
+          node-version: 18
+          cache: "npm"
+      - name: Build Typescript
+        run: | 
+          npm i
+          npx tsc
+      - name: Upload ftp
+        uses: sebastianpopp/ftp-action@releases/v2
+        with:
+          host: ${{ secrets.FTP_SERVER }}
+          user: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          options: "--delete --asci --only-newer"

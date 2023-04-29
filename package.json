@@ -1,0 +1,23 @@
+{
+  "name": "chatwarstools",
+  "version": "1.0.0",
+  "description": "Web-Based tools for the telegram game ChatWars",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Plagiatus/ChatwarsTools.git"
+  },
+  "keywords": [],
+  "author": "Plagiatus (Lukas Scheuerle)",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Plagiatus/ChatwarsTools/issues"
+  },
+  "homepage": "https://github.com/Plagiatus/ChatwarsTools#readme",
+  "devDependencies": {
+    "typescript": "^5.0.4"
+  }
+}
