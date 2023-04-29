@@ -283,13 +283,13 @@ function randomHSLA(alpha: number = 0.8) {
  * draws a circle around the tiles that should be interacted with
  */
 function highlightStop(position: Vector2, color: string = currentPathColor) {
-    ctx.fillStyle = color;
-    ctx.strokeStyle = color;
-    ctx.setLineDash([]);
-    ctx.lineWidth = 3;
+    pathCtx.fillStyle = color;
+    pathCtx.strokeStyle = color;
+    pathCtx.setLineDash([]);
+    pathCtx.lineWidth = 3;
     let p = new Path2D();
     p.arc(position.x * rasterSize + rasterSize / 2, position.y * rasterSize + rasterSize / 2, rasterSize, 0, Math.PI * 2);
-    ctx.stroke(p);
+    pathCtx.stroke(p);
 }
 
 /** An eventlistener that sets the calculation relevant weights if they are changed by the user to prompt a recalculation */

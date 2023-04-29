@@ -41,8 +41,15 @@ let imgData: ImageData = new ImageData(1, 1);
 
 let overrideStopSearch: boolean = false;
 
-const canvas = document.getElementsByTagName("canvas")[0];
-const ctx: CanvasRenderingContext2D = <CanvasRenderingContext2D>canvas.getContext("2d");
+const canvases = document.getElementsByTagName("canvas");
+const bgCanvas = canvases[0];
+const bgCtx: CanvasRenderingContext2D = <CanvasRenderingContext2D>bgCanvas.getContext("2d");
+const highlightCanvas = canvases[1];
+const highlightCtx: CanvasRenderingContext2D = <CanvasRenderingContext2D>highlightCanvas.getContext("2d");
+const pathCanvas = canvases[2];
+const pathCtx: CanvasRenderingContext2D = <CanvasRenderingContext2D>pathCanvas.getContext("2d");
+const interactableCanvas = canvases[3];
+const interactableCtx: CanvasRenderingContext2D = <CanvasRenderingContext2D>pathCanvas.getContext("2d");
 document.getElementById("loadImage")?.addEventListener("click", loadImage);
 document.getElementById("findPosition")?.addEventListener("click", findPosition);
 document.getElementById("resetMaze")?.addEventListener("click", resetMaze);
@@ -52,7 +59,7 @@ document.getElementById("stopSearch")?.addEventListener("click", stopSearch);
 // document.getElementById("highlightStart")?.addEventListener("click", ()=>{highlightStart(true)});
 document.getElementById("highlightBossCheck")?.addEventListener("change", highlightBossCheck);
 document.getElementById("highlightStartCheck")?.addEventListener("change", highlightStartCheck);
-canvas.addEventListener("click", getCanvasPosition);
+interactableCanvas.addEventListener("click", getCanvasPosition);
 
 /**
  * Loads the image from the file input into the canvas.
@@ -76,9 +83,11 @@ function loadImage() {
 
     let img = new Image();
     img.addEventListener("load", () => {
-        canvas.width = img.width;
-        canvas.height = img.height;
-        ctx?.drawImage(img, 0, 0);
+        for(let canvas of canvases) {
+            canvas.width = img.width;
+            canvas.height = img.height;
+        }
+        bgCtx?.drawImage(img, 0, 0);
         loadMaze(img.width, img.height);
         resetMaze();
     })
@@ -101,8 +110,8 @@ const loadingAlgorithms: LoadingAlgorithm = {
  * Loads the maze in Tile[][] form from the image input, by choosing the selected algorithm
  */
 function loadMaze(width: number, height: number) {
-    imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    ctx.save();
+    imgData = bgCtx.getImageData(0, 0, bgCanvas.width, bgCanvas.height);
+    bgCtx.save();
     maze = [];
     emptyMaze = [];
     loadingAlgorithms[inputMazeType](width, height);
@@ -283,10 +292,10 @@ function findPosition() {
 function outputFoundPosition(mazeX: number, mazeY: number, pattern: Tile[][]) {
     console.log("found position", mazeX, mazeY);
 
-    ctx.fillStyle = "rgba(0, 255, 0, 0.2)";
-    ctx.strokeStyle = "rgba(0, 255, 0, 0.8)";
-    ctx.fillRect(mazeX * rasterSize, mazeY * rasterSize, pattern[0].length * rasterSize, pattern.length * rasterSize);
-    ctx.strokeRect(mazeX * rasterSize, mazeY * rasterSize, pattern[0].length * rasterSize, pattern.length * rasterSize);
+    highlightCtx.fillStyle = "rgba(0, 255, 0, 0.2)";
+    highlightCtx.strokeStyle = "rgba(0, 255, 0, 0.8)";
+    highlightCtx.fillRect(mazeX * rasterSize, mazeY * rasterSize, pattern[0].length * rasterSize, pattern.length * rasterSize);
+    highlightCtx.strokeRect(mazeX * rasterSize, mazeY * rasterSize, pattern[0].length * rasterSize, pattern.length * rasterSize);
 }
 
 
@@ -343,13 +352,16 @@ function parsePattern(): Tile[][] {
 
 function resetMaze() {
     hideError();
-    ctx.putImageData(imgData, 0, 0);
+    for(let canvas of canvases){
+        canvas.getContext("2d")?.clearRect(0, 0, canvas.width, canvas.height);
+    }
+    bgCtx.putImageData(imgData, 0, 0);
     if (startPosition[0] >= 0 && startPosition[1] >= 0) highlightStart();
     if (bossHighlighted) highlightBoss();
 }
 
 function getCanvasPosition(e: MouseEvent) {
-    let rect = canvas.getBoundingClientRect();
+    let rect = bgCanvas.getBoundingClientRect();
     hideError();
     let x: number = Math.floor((e.clientX - rect.left) / rasterSize);
     let y: number = Math.floor((e.clientY - rect.top) / rasterSize);
@@ -526,13 +538,13 @@ function drawPath(path: [number, number][], fat: boolean = false, color?: string
         }
         p.lineTo(path[i][1] * rasterSize + rasterSize / 2 + offsetX, path[i][0] * rasterSize + rasterSize / 2 + offsetY);
     }
-    ctx.strokeStyle = color ?? `hsl(${Math.floor(Math.random() * 360)}, 70%, 40%)`;
-    if (showProgress) ctx.strokeStyle = "black";
-    if (fat) ctx.lineWidth = inputMazeType == "cw" ? 3 : 5;
-    if (dashed) ctx.setLineDash([rasterSize / 2, rasterSize / 4]);
-    ctx.stroke(p);
-    ctx.lineWidth = 1;
-    ctx.setLineDash([]);
+    pathCtx.strokeStyle = color ?? `hsl(${Math.floor(Math.random() * 360)}, 70%, 40%)`;
+    if (showProgress) pathCtx.strokeStyle = "black";
+    if (fat) pathCtx.lineWidth = inputMazeType == "cw" ? 3 : 5;
+    if (dashed) pathCtx.setLineDash([rasterSize / 2, rasterSize / 4]);
+    pathCtx.stroke(p);
+    pathCtx.lineWidth = 1;
+    pathCtx.setLineDash([]);
 }
 
 async function delay(ms: number): Promise<void> {
@@ -606,8 +618,8 @@ function highlightBoss() {
     if (bossPosition[0] < 0 || bossPosition[1] < 0) throw new Error("Invalid Boss Position");
     let p: Path2D = new Path2D();
     p.arc(bossPosition[0] * rasterSize, bossPosition[1] * rasterSize, rasterSize * 10, 0, 2 * Math.PI);
-    ctx.fillStyle = "rgba(255, 0, 0, 0.2)";
-    ctx.fill(p);
+    highlightCtx.fillStyle = "rgba(255, 0, 0, 0.2)";
+    highlightCtx.fill(p);
 }
 
 /**
@@ -615,13 +627,13 @@ function highlightBoss() {
  */
 function highlightStart(big: boolean = startHighlighted) {
     if (startPosition[0] < 0 || startPosition[1] < 0) throw new Error("Invalid Start Position");
-    ctx.fillStyle = "rgba(0, 0, 255, 0.2)";
-    ctx.strokeStyle = "rgba(0, 0, 255, 0.8)";
+    highlightCtx.fillStyle = "rgba(0, 0, 255, 0.2)";
+    highlightCtx.strokeStyle = "rgba(0, 0, 255, 0.8)";
     let p: Path2D = new Path2D();
     p.rect(startPosition[0] * rasterSize, startPosition[1] * rasterSize, rasterSize, rasterSize);
-    ctx.stroke(p)
+    highlightCtx.stroke(p)
     if (big) p.arc(startPosition[0] * rasterSize, startPosition[1] * rasterSize, rasterSize * 10, 0, Math.PI * 2);
-    ctx.fill(p);
+    highlightCtx.fill(p);
 }
 
 function highlightBossCheck(e: Event) {

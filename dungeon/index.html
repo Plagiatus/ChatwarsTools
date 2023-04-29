@@ -124,7 +124,12 @@
         </div>
     </div>
     <p class="bg-danger text-white p-2" id="error-message" hidden></p>
-    <canvas width="2" height="2"></canvas>
+    <div id="canvas-wrapper">
+        <canvas width="2" height="2"></canvas>
+        <canvas width="2" height="2"></canvas>
+        <canvas width="2" height="2"></canvas>
+        <canvas width="2" height="2"></canvas>
+    </div>
 </body>
 
 </html>
@@ -132,5 +137,19 @@
 <style>
     .hidden {
         display: none !important;
+    }
+
+    #canvas-wrapper {
+        position: relative;
+        max-width: 100%;
+        overflow-x: scroll;
+    }
+    canvas {
+        position: absolute;
+        top: 0;
+        left: 0;
+    }
+    canvas:first-of-type {
+        position: relative;
     }
 </style>
