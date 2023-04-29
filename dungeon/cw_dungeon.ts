@@ -59,7 +59,6 @@ document.getElementById("stopSearch")?.addEventListener("click", stopSearch);
 // document.getElementById("highlightStart")?.addEventListener("click", ()=>{highlightStart(true)});
 document.getElementById("highlightBossCheck")?.addEventListener("change", highlightBossCheck);
 document.getElementById("highlightStartCheck")?.addEventListener("change", highlightStartCheck);
-interactableCanvas.addEventListener("click", getCanvasPosition);
 
 /**
  * Loads the image from the file input into the canvas.
@@ -359,17 +358,6 @@ function resetMaze() {
     if (startPosition[0] >= 0 && startPosition[1] >= 0) highlightStart();
     if (bossHighlighted) highlightBoss();
 }
-
-function getCanvasPosition(e: MouseEvent) {
-    let rect = bgCanvas.getBoundingClientRect();
-    hideError();
-    let x: number = Math.floor((e.clientX - rect.left) / rasterSize);
-    let y: number = Math.floor((e.clientY - rect.top) / rasterSize);
-
-    startPosition = [x, y];
-    resetMaze();
-}
-
 
 let foundPaths: [number, number][][] = [];
 let progress = 0;
