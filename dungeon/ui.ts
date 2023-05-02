@@ -185,8 +185,8 @@ function drawPath(path: [number, number][], fat: boolean = false, color?: string
             if (path.length - 1 == i || i == 0) {
                 offsetX = offsetY = 0;
             } else {
-                offsetY = Math.sign(path[i][1] - path[i + 1][1]) * rasterSize / 4;
-                offsetX = Math.sign(path[i][0] - path[i + 1][0]) * rasterSize / 4 * -1;
+                offsetY = Math.sign(path[i - 1][1] - path[i + 1][1]) * rasterSize / -4;
+                offsetX = Math.sign(path[i - 1][0] - path[i + 1][0]) * rasterSize / 4;
             }
         }
         p.lineTo(path[i][1] * rasterSize + rasterSize / 2 + offsetX, path[i][0] * rasterSize + rasterSize / 2 + offsetY);
