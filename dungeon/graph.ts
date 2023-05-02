@@ -81,6 +81,7 @@ function initCWNodes() {
 
 /** Calculates the shortest paths based on the node graph. */
 function calculatePathWithNodes(this: HTMLInputElement, event: Event) {
+    resetPath();
     let treasureRun: boolean = this.id === "calculateTreasureRun";
     maxSteps = +(<HTMLInputElement>document.getElementById("maxSteps")).value;
     // are recalculations needed?

@@ -70,6 +70,7 @@ function getCanvasPosition(e: MouseEvent): Vector2 {
 function handleMouseDblClick(e: MouseEvent) {
     let { x, y } = getCanvasPosition(e);
     hideError();
+    resetInfo();
     startPosition = [x, y];
     resetPath();
 }
@@ -108,11 +109,11 @@ function highlightStart(big: boolean = startHighlighted) {
 
 function highlightBossCheck(e: Event) {
     bossHighlighted = (<HTMLInputElement>e.target).checked;
-    resetMaze();
+    resetHighlights();
 }
 function highlightStartCheck(e: Event) {
     startHighlighted = (<HTMLInputElement>e.target).checked;
-    resetMaze();
+    resetHighlights();
 }
 
 function updateMaxSteps(this: HTMLInputElement, e: Event){
