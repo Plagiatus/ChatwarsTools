@@ -70,7 +70,7 @@ function getCanvasPosition(e: MouseEvent): Vector2 {
 function handleMouseDblClick(e: MouseEvent) {
     let { x, y } = getCanvasPosition(e);
     hideError();
-    resetInfo();
+    resetInfo(false);
     startPosition = [x, y];
     resetPath();
 }
@@ -116,7 +116,7 @@ function highlightStartCheck(e: Event) {
     resetHighlights();
 }
 
-function updateMaxSteps(this: HTMLInputElement, e: Event){
+function updateMaxSteps(this: HTMLInputElement, e: Event) {
     maxSteps = +this.value;
 }
 
@@ -145,14 +145,23 @@ function resetHighlights() {
     if (bossHighlighted) highlightBoss();
 }
 
-function resetInfo() {
+function resetInfo(showCurrentPosition: boolean = true) {
     resetCanvas(surroundingInfoCtx);
 
+    if (!showCurrentPosition) return;
     if (currentSelectedPosition.x < 0 || currentSelectedPosition.y < 0) throw new Error("Invalid Selected Position");
     surroundingInfoCtx.fillStyle = "rgba(0, 255, 0, 0.2)";
     surroundingInfoCtx.strokeStyle = "rgba(0, 255, 0, 0.8)";
     let p: Path2D = new Path2D();
-    p.rect(currentSelectedPosition.x * rasterSize, currentSelectedPosition.y * rasterSize, rasterSize, rasterSize);
+    if (currentSelectedPosition.x === startPosition[0] && currentSelectedPosition.y === startPosition[1]) {
+        //draw only halve the box, because start Position is in the same place
+        p.moveTo(currentSelectedPosition.x * rasterSize, currentSelectedPosition.y * rasterSize);
+        p.lineTo((currentSelectedPosition.x + 1) * rasterSize, currentSelectedPosition.y * rasterSize);
+        p.lineTo((currentSelectedPosition.x + 1) * rasterSize, (currentSelectedPosition.y + 1) * rasterSize);
+        p.lineTo(currentSelectedPosition.x * rasterSize, currentSelectedPosition.y * rasterSize);
+    } else {
+        p.rect(currentSelectedPosition.x * rasterSize, currentSelectedPosition.y * rasterSize, rasterSize, rasterSize);
+    }
     surroundingInfoCtx.stroke(p);
     surroundingInfoCtx.fill(p);
 }
