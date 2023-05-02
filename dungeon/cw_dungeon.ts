@@ -526,7 +526,7 @@ window.addEventListener("unhandledrejection", handleError);
  * Allows for the throwing of errors anywhere in the code and it being shown through this.
  */
 function handleError(ev: Event) {
-    errorDisplay.hidden = false;
+    errorDisplay.classList.remove("invisible");
     if ((<PromiseRejectionEvent>ev).reason) {
         errorDisplay.innerText = (<PromiseRejectionEvent>ev).reason;
     }

@@ -130,7 +130,7 @@
             </div>
         </div>
     </div>
-    <p class="bg-danger text-white p-2" id="error-message" hidden></p>
+    <p class="bg-danger text-white p-2 invisible" id="error-message">&nbsp;</p>
     <p>Left click to see distance information. Double left click to set start position.</p>
     <div id="canvas-wrapper">
         <canvas width="2" height="2"></canvas>
@@ -150,6 +150,9 @@
 <style>
     .hidden {
         display: none !important;
+    }
+    .invisible {
+        opacity: 0;
     }
 
     #canvas-wrapper {

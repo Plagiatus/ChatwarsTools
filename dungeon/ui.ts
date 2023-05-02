@@ -79,7 +79,7 @@ function handleMouseDblClick(e: MouseEvent) {
  * Hides the Error output. Should be called when a new calculation is started.
  */
 function hideError() {
-    errorDisplay.hidden = true;
+    errorDisplay.classList.add("invisible");
 }
 
 /**
