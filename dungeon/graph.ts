@@ -263,6 +263,11 @@ function vectorToString(v: Vector2) {
     return `(${v.x},${v.y})`;
 }
 
+function stringToVector(s: string): Vector2 {
+    let [x, y] = s.replace("(", "").replace(")", "").split(",");
+    return {x: Number(x), y: Number(y)};
+}
+
 function sortNodesByDistance(a: CWNode, b: CWNode) {
     return a.distance - b.distance;
 }
@@ -277,19 +282,6 @@ let previousColorAngle = Math.floor(Math.random() * 360);
 let currentPathColor: string = randomHSLA();
 function randomHSLA(alpha: number = 0.8) {
     return `hsla(${previousColorAngle += 60}, 70%, 50%, ${alpha})`;
-}
-
-/**
- * draws a circle around the tiles that should be interacted with
- */
-function highlightStop(position: Vector2, color: string = currentPathColor) {
-    pathCtx.fillStyle = color;
-    pathCtx.strokeStyle = color;
-    pathCtx.setLineDash([]);
-    pathCtx.lineWidth = 3;
-    let p = new Path2D();
-    p.arc(position.x * rasterSize + rasterSize / 2, position.y * rasterSize + rasterSize / 2, rasterSize, 0, Math.PI * 2);
-    pathCtx.stroke(p);
 }
 
 /** An eventlistener that sets the calculation relevant weights if they are changed by the user to prompt a recalculation */

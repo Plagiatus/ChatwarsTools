@@ -125,7 +125,9 @@
         </div>
     </div>
     <p class="bg-danger text-white p-2" id="error-message" hidden></p>
+    <p>Left click to see distance information. Double left click to set start position.</p>
     <div id="canvas-wrapper">
+        <canvas width="2" height="2"></canvas>
         <canvas width="2" height="2"></canvas>
         <canvas width="2" height="2"></canvas>
         <canvas width="2" height="2"></canvas>
@@ -160,5 +162,6 @@
     #canvas-hover-info {
         position: absolute;
         z-index: 1000;
+        min-width: 7em;
     }
 </style>
