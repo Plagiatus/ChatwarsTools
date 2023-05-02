@@ -74,20 +74,13 @@
         </div>
         <button class="btn btn-primary mt-2" id="findPosition">Find Position</button><br>
     </div>
-    <ul class="nav nav-tabs" id="algoTab" role="tablist">
-        <li class="nav-item" role="presentation">
-            <button class="nav-link active" id="boss-tab" data-tab-toggle="tab" data-tab-target="#boss" type="button" role="tab" aria-controls="boss" aria-selected="true">Boss Rush</button></li>
-        <li class="nav-item" role="presentation">
-            <button class="nav-link" id="treasure-tab" data-tab-toggle="tab" data-tab-target="#treasure" type="button" role="tab" aria-controls="treasure" aria-selected="true">Treasure Run</button></li>
-    </ul>
-    <div id="boss">
-        <h2>Get to the boss with as few bonfires as possible.</h2>
+    <div>
         <div class="d-flex">
             <div class="p-2 border rounded me-2">
-                <label for="maxSteps">your steps (30 default, 35 for premium)</label>
+                <h3>Settings</h3>
+                <label for="maxSteps">Your steps (30 default, 35 for premium)</label>
                 <input type="number" name="maxSteps" id="maxSteps" min="30" max="35" step="5" value="30"
                     style="width: 3em;"><br>
-                <button class="btn btn-primary my-2" id="calculatePathWithNodes">Calculate Path to Boss</button><br>
                 <!-- <input type="checkbox" name="showProgress" id="showProgress">
                     <label for="showProgress">Show Progress (muuuch slower)</label>
                     <input type="checkbox" name="doTheFastWay" id="doTheFastWay">
@@ -104,24 +97,37 @@
                 <button class="btn btn-danger mt-2" id="resetMaze">Reset Maze</button><br>
             </div>
             <div class="p-2 border rounded">
-                <h3>Algorithm Adjustments</h3>
-                <input type="checkbox" name="approachBossOnlyThroughBonfire" id="approachBossOnlyThroughBonfire" checked>
-                <label for="approachBossOnlyThroughBonfire">Approach Boss only through Bonfire</label><br>
-                <p>Adjust the numbers to tweak the searching algorithm to avoid certain stops.<br><em>The higher the number, the less likely the path will include this tile.</em></p>
-                <label for="fountainWeight">Fountain Weight</label>
-                <input type="number" name="fountainWeight" id="fountainWeight" min="1" step="1" value="1" style="width: 4em;"><br>
-                <label for="bonfireWeight">Bonfire Weight</label>
-                <input type="number" name="bonfireWeight" id="bonfireWeight" min="1" step="1" value="5" style="width: 4em;"><br>
-                <label for="monsterWeight">Monster Weight</label>
-                <input type="number" name="monsterWeight" id="monsterWeight" min="1" step="1" value="3" style="width: 4em;"><br>
+                
+                <ul class="nav nav-tabs" id="algoTab" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="boss-tab" data-tab-toggle="tab" data-tab-target="#boss" type="button" role="tab" aria-controls="boss" aria-selected="true">Boss Rush</button></li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="treasure-tab" data-tab-toggle="tab" data-tab-target="#treasure" type="button" role="tab" aria-controls="treasure" aria-selected="true">Treasure Run</button></li>
+                </ul>
+
+                <div id="boss">
+                    <h3>Get to the boss with as few bonfires as possible.</h3>
+                    <input type="checkbox" name="approachBossOnlyThroughBonfire" id="approachBossOnlyThroughBonfire" checked>
+                    <label for="approachBossOnlyThroughBonfire">Approach Boss only through Bonfire</label><br>
+                    <p>Adjust the numbers to tweak the searching algorithm to avoid certain stops.<br><em>The higher the number, the less likely the path will include this tile.</em></p>
+                    <label for="fountainWeight">Fountain Weight</label>
+                    <input type="number" name="fountainWeight" id="fountainWeight" min="1" step="1" value="1" style="width: 4em;"><br>
+                    <label for="bonfireWeight">Bonfire Weight</label>
+                    <input type="number" name="bonfireWeight" id="bonfireWeight" min="1" step="1" value="5" style="width: 4em;"><br>
+                    <label for="monsterWeight">Monster Weight</label>
+                    <input type="number" name="monsterWeight" id="monsterWeight" min="1" step="1" value="3" style="width: 4em;"><br>
+                    
+                    <button class="btn btn-primary my-2" id="calculatePathWithNodes">Calculate Path to Boss</button><br>
+                </div>
+
+                <div id="treasure">
+                    <h3>Treasure Run coming soon™</h3><br>
+                    <div>
+                        <p>Here, have a preview to play with.</p>
+                        <button class="btn btn-primary my-2" id="calculateTreasureRun">Calculate Treasure Run</button><br>
+                    </div>
+                </div>
             </div>
-        </div>
-    </div>
-    <div id="treasure">
-        <h2>Treasure Run coming soon™</h2><br>
-        <div>
-            <p>Here, have a preview to play with. (the controls are still in the Boss Rush tab)</p>
-            <button class="btn btn-primary my-2" id="calculateTreasureRun">Calculate Treasure Run</button><br>
         </div>
     </div>
     <p class="bg-danger text-white p-2" id="error-message" hidden></p>
