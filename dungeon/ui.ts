@@ -209,10 +209,10 @@ function showSurroundingInfo() {
     let path: Vector2[] = [];
     surroundingInfoRecursive(currentSelectedPosition, path, distances, maxSteps);
 
-    surroundingInfoCtx.strokeStyle = "black";
+    surroundingInfoCtx.strokeStyle = "rgba(0,0,0,0.5)";
     for (let pair of distances) {
         let pos = stringToVector(pair[0]);
-        surroundingInfoCtx.strokeText(pair[1].toString(), pos.x * rasterSize, (pos.y + 1) * rasterSize, rasterSize);
+        surroundingInfoCtx.strokeText(pair[1].toString(), pos.x * rasterSize + 2, (pos.y + 1) * rasterSize - 2, rasterSize);
     }
 }
 
