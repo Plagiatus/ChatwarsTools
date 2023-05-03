@@ -9,7 +9,7 @@
     <script src="cw_dungeon.js" defer></script>
     <script src="graph.js" defer></script>
     <script src="treasure.js" defer></script>
-    <script src="tabs.js" defer></script>
+    <script src="bootstrap.js" defer></script>
     <script src="ui.js" defer></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi" crossorigin="anonymous">
@@ -92,26 +92,35 @@
                 <button class="btn btn-danger" id="resetMaze">Reset Maze</button><br>
             </div>
             <div class="p-2 border rounded">
-                
+
                 <ul class="nav nav-tabs" id="algoTab" role="tablist">
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link active" id="boss-tab" data-tab-toggle="tab" data-tab-target="#boss" type="button" role="tab" aria-controls="boss" aria-selected="true">Boss Rush</button></li>
+                        <button class="nav-link active" id="boss-tab" data-tab-toggle="tab" data-tab-target="#boss"
+                            type="button" role="tab" aria-controls="boss" aria-selected="true">Boss Rush</button>
+                    </li>
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="treasure-tab" data-tab-toggle="tab" data-tab-target="#treasure" type="button" role="tab" aria-controls="treasure" aria-selected="true">Treasure Run</button></li>
+                        <button class="nav-link" id="treasure-tab" data-tab-toggle="tab" data-tab-target="#treasure"
+                            type="button" role="tab" aria-controls="treasure" aria-selected="true">Treasure Run</button>
+                    </li>
                 </ul>
 
                 <div id="boss">
                     <h3>Get to the boss with as few bonfires as possible.</h3>
-                    <input type="checkbox" name="approachBossOnlyThroughBonfire" id="approachBossOnlyThroughBonfire" checked>
+                    <input type="checkbox" name="approachBossOnlyThroughBonfire" id="approachBossOnlyThroughBonfire"
+                        checked>
                     <label for="approachBossOnlyThroughBonfire">Approach Boss only through Bonfire</label><br>
-                    <p>Adjust the numbers to tweak the searching algorithm to avoid certain stops.<br><em>The higher the number, the less likely the path will include this tile.</em></p>
+                    <p>Adjust the numbers to tweak the searching algorithm to avoid certain stops.<br><em>The higher the
+                            number, the less likely the path will include this tile.</em></p>
                     <label for="fountainWeight">Fountain Weight</label>
-                    <input type="number" name="fountainWeight" id="fountainWeight" min="1" step="1" value="1" style="width: 4em;"><br>
+                    <input type="number" name="fountainWeight" id="fountainWeight" min="1" step="1" value="1"
+                        style="width: 4em;"><br>
                     <label for="bonfireWeight">Bonfire Weight</label>
-                    <input type="number" name="bonfireWeight" id="bonfireWeight" min="1" step="1" value="5" style="width: 4em;"><br>
+                    <input type="number" name="bonfireWeight" id="bonfireWeight" min="1" step="1" value="5"
+                        style="width: 4em;"><br>
                     <label for="monsterWeight">Monster Weight</label>
-                    <input type="number" name="monsterWeight" id="monsterWeight" min="1" step="1" value="3" style="width: 4em;"><br>
-                    
+                    <input type="number" name="monsterWeight" id="monsterWeight" min="1" step="1" value="3"
+                        style="width: 4em;"><br>
+
                     <button class="btn btn-primary my-2" id="calculatePathWithNodes">Calculate Path to Boss</button><br>
                 </div>
 
@@ -119,14 +128,16 @@
                     <h3>Treasure Run coming soon™</h3><br>
                     <div>
                         <p>Here, have a preview to play with.</p>
-                        <button class="btn btn-primary my-2" id="calculateTreasureRun">Calculate Treasure Run</button><br>
+                        <button class="btn btn-primary my-2" id="calculateTreasureRun">Calculate Treasure
+                            Run</button><br>
                     </div>
                 </div>
             </div>
         </div>
     </div>
     <p class="bg-danger text-white p-2 invisible" id="error-message">&nbsp;</p>
-    <p>Left click to see local distance information. Double left click to set new start position for the pathing algorithms.</p>
+    <p>Left click to see local distance information. Double left click to set new start position for the pathing
+        algorithms.</p>
     <div id="canvas-wrapper">
         <canvas width="2" height="2"></canvas>
         <canvas width="2" height="2"></canvas>
@@ -138,7 +149,22 @@
             <!-- <span>Tile: <span id="tileType">Wall</span></span> -->
         </div>
     </div>
+    <div id="notifications" class="toast-container bottom-0 end-0 m-2">
+
+    </div>
 </body>
+
+<template id="toast-template">
+    <div class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header">
+            <strong class="me-auto" id="toast-title">Title</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body" id="toast-body">
+            Body
+        </div>
+    </div>
+</template>
 
 </html>
 
@@ -146,6 +172,7 @@
     .hidden {
         display: none !important;
     }
+
     .invisible {
         opacity: 0;
     }
@@ -155,14 +182,17 @@
         max-width: 100%;
         overflow-x: scroll;
     }
+
     canvas {
         position: absolute;
         top: 0;
         left: 0;
     }
+
     canvas:first-of-type {
         position: relative;
     }
+
     #canvas-hover-info {
         position: absolute;
         z-index: 1000;
