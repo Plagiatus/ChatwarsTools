@@ -440,7 +440,7 @@ function formatWithdraws(arr: Ingredient[]): HTMLElement {
 		code.innerText = "/g_withdraw "
 		for (let i: number = 0; i < 9 && itemsToWithdraw.length > 0; i++) {
 			let item = <Ingredient>itemsToWithdraw.pop();
-			code.innerText += `${item.id} ${item.amount < 10 ? "0" : ""}${item.amount} `
+			code.innerText += `${item.id} ${item.amount} `
 		}
 
 		li.appendChild(code);
