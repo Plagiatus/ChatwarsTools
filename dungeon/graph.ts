@@ -209,7 +209,6 @@ function calculateDistanceToBoss() {
  * Calculates the path from the currently selected starting point
  */
 function findPathFromNodes() {
-    hideError();
     let position = fixStartingPosition(startPosition)
     let node = <CWNode>allCWNodesWithPath.get(vectorToString(position));
     if (node.distance === Infinity) throw new Error("No Path exists from here");

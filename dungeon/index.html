@@ -135,7 +135,6 @@
             </div>
         </div>
     </div>
-    <p class="bg-danger text-white p-2 invisible" id="error-message">&nbsp;</p>
     <p>Left click to see local distance information. Double left click to set new start position for the pathing
         algorithms.</p>
     <div id="canvas-wrapper">
@@ -149,16 +148,14 @@
             <!-- <span>Tile: <span id="tileType">Wall</span></span> -->
         </div>
     </div>
-    <div id="notifications" class="toast-container bottom-0 end-0 m-2">
-
-    </div>
+    <div id="notifications" class="toast-container position-fixed bottom-0 end-0 m-2"></div>
 </body>
 
 <template id="toast-template">
-    <div class="toast" role="alert" aria-live="assertive" aria-atomic="true">
-        <div class="toast-header">
+    <div class="toast show" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header" id="toast-header">
             <strong class="me-auto" id="toast-title">Title</strong>
-            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+            <button type="button" class="btn-close" aria-label="Close" id="close-button"></button>
         </div>
         <div class="toast-body" id="toast-body">
             Body

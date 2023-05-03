@@ -48,7 +48,6 @@ document.getElementById("stopSearch")?.addEventListener("click", stopSearch);
  * Loads the image from the file input into the canvas.
  */
 function loadImage() {
-    hideError();
     let fd = new FormData(document.forms[0]);
     let mazeLayout = fd.get("mazeLayout");
     console.log(mazeLayout);
@@ -66,7 +65,7 @@ function loadImage() {
 
     let img = new Image();
     img.addEventListener("load", () => {
-        for(let canvas of canvases) {
+        for (let canvas of canvases) {
             canvas.width = img.width;
             canvas.height = img.height;
         }
@@ -226,7 +225,6 @@ function colorToTileTypeCW(colors: number[]): TileType {
  * Finds and displays all the spots that a given pattern could be located in
  */
 function findPosition() {
-    hideError();
     let pattern = parsePattern();
     if (pattern.length < 3 || pattern[0].length < 3) {
         throw new Error("Not enough input to calculate a position.");
@@ -346,7 +344,6 @@ let doTheFastWay: boolean = false;
  * @param e 
  */
 async function calculatePath(e: MouseEvent) {
-    hideError();
     resetMaze();
     highlightBoss();
     highlightStart(false);
@@ -510,12 +507,11 @@ function tileToTileWithSteps(tile: Tile, steps: number): TileWithSteps {
  * @deprecated
  */
 function stopSearch() {
-    hideError();
     overrideStopSearch = true;
 }
 
 
-let errorDisplay: HTMLParagraphElement = <HTMLParagraphElement>document.getElementById("error-message");
+// let errorDisplay: HTMLParagraphElement = <HTMLParagraphElement>document.getElementById("error-message");
 
 window.addEventListener("error", handleError);
 window.addEventListener("unhandledrejection", handleError);
@@ -526,14 +522,12 @@ window.addEventListener("unhandledrejection", handleError);
  * Allows for the throwing of errors anywhere in the code and it being shown through this.
  */
 function handleError(ev: Event) {
-    errorDisplay.classList.remove("invisible");
+    let errorMessage = "An unknown Error occured. Check the console for details."
     if ((<PromiseRejectionEvent>ev).reason) {
-        errorDisplay.innerText = (<PromiseRejectionEvent>ev).reason;
+        errorMessage = (<PromiseRejectionEvent>ev).reason;
     }
     else if ((<ErrorEvent>ev).message) {
-        errorDisplay.innerText = (<ErrorEvent>ev).message;
+        errorMessage = (<ErrorEvent>ev).message;
     }
-    else {
-        errorDisplay.innerText = "An unknown Error occured. Check the console for details.";
-    }
+    showNotification("Error", errorMessage, ["bg-danger", "text-white"]);
 }

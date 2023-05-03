@@ -110,7 +110,6 @@ function getConnectionTreasureWeight(node: CWConnection): number {
 }
 
 function findTreasureRoute(){
-    hideError();
     let startPositionVector = fixStartingPosition(startPosition)
     let startNode = <CWNode>allCWNodesWithPath.get(vectorToString(startPositionVector));
 

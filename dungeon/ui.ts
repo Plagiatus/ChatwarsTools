@@ -55,7 +55,6 @@ function hideHoverInfo() {
 
 function handleMouseClick(e: MouseEvent) {
     currentSelectedPosition = getCanvasPosition(e);
-    hideError();
     resetInfo();
     showSurroundingInfo();
 }
@@ -71,18 +70,10 @@ function getCanvasPosition(e: MouseEvent): Vector2 {
 
 function handleMouseDblClick(e: MouseEvent) {
     let { x, y } = getCanvasPosition(e);
-    hideError();
     resetInfo(false);
     startPosition = [x, y];
     if(startResetsPaths) resetPath();
     else resetHighlights();
-}
-
-/**
- * Hides the Error output. Should be called when a new calculation is started.
- */
-function hideError() {
-    errorDisplay.classList.add("invisible");
 }
 
 /**
@@ -127,7 +118,6 @@ function updateMaxSteps(this: HTMLInputElement, e: Event) {
 }
 
 function resetMaze() {
-    hideError();
     for (let canvas of canvases) {
         canvas.getContext("2d")?.clearRect(0, 0, canvas.width, canvas.height);
     }

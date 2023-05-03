@@ -23,3 +23,25 @@ function activateTab(event: MouseEvent) {
         tab.classList.add("active");
     }
 }
+
+/*
+    Notifications
+*/
+const notificationWrapper: HTMLDivElement = <HTMLDivElement>document.getElementById("notifications");
+const notificationTemplate: HTMLTemplateElement = <HTMLTemplateElement>document.getElementById("toast-template");
+
+function showNotification(title: string, content: string, classes: string[] = [], vanishAfter: number = 7) {
+    let newNotificationElement: HTMLElement = <HTMLElement>notificationTemplate.content.firstElementChild!.cloneNode(true);
+    newNotificationElement.querySelector("#toast-title")!.innerHTML = title;
+    newNotificationElement.querySelector("#toast-header")!.classList.add(...classes);
+    newNotificationElement.querySelector("#toast-body")!.innerHTML = content;
+    notificationWrapper.appendChild(newNotificationElement);
+    newNotificationElement.querySelector("#close-button")!.addEventListener("click", removeNotification);
+
+    if(vanishAfter > 0) {
+        setTimeout(removeNotification, vanishAfter * 1000);
+    }
+    function removeNotification(){
+        newNotificationElement.remove();
+    }
+}
