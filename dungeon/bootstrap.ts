@@ -31,17 +31,35 @@ const notificationWrapper: HTMLDivElement = <HTMLDivElement>document.getElementB
 const notificationTemplate: HTMLTemplateElement = <HTMLTemplateElement>document.getElementById("toast-template");
 
 function showNotification(title: string, content: string, classes: string[] = [], vanishAfter: number = 7) {
+    let timeout: number = 0;
+
     let newNotificationElement: HTMLElement = <HTMLElement>notificationTemplate.content.firstElementChild!.cloneNode(true);
     newNotificationElement.querySelector("#toast-title")!.innerHTML = title;
     newNotificationElement.querySelector("#toast-header")!.classList.add(...classes);
     newNotificationElement.querySelector("#toast-body")!.innerHTML = content;
     notificationWrapper.appendChild(newNotificationElement);
     newNotificationElement.querySelector("#close-button")!.addEventListener("click", removeNotification);
+    newNotificationElement.addEventListener("mouseenter", abortRemoval);
+    newNotificationElement.addEventListener("mouseleave", startRemoval);
 
-    if(vanishAfter > 0) {
-        setTimeout(removeNotification, vanishAfter * 1000);
+    let timerBar: HTMLElement = newNotificationElement.querySelector("#toast-timer-bar")!;
+    timerBar.style.animationDuration = vanishAfter + "s";
+    startRemoval();
+
+    function startRemoval() {
+        if (timeout) abortRemoval();
+        if (vanishAfter > 0) {
+            timeout = setTimeout(removeNotification, vanishAfter * 1000);
+            timerBar.style.animationName = "timer-bar";
+        }
     }
-    function removeNotification(){
+    function abortRemoval() {
+        if (timeout) {
+            clearTimeout(timeout);
+            timerBar.style.animationName = "none";
+        }
+    }
+    function removeNotification() {
         newNotificationElement.remove();
     }
 }

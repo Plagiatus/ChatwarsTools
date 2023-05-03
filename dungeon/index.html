@@ -153,10 +153,11 @@
 
 <template id="toast-template">
     <div class="toast show" role="alert" aria-live="assertive" aria-atomic="true">
-        <div class="toast-header" id="toast-header">
+        <div class="toast-header border-bottom-0" id="toast-header">
             <strong class="me-auto" id="toast-title">Title</strong>
             <button type="button" class="btn-close" aria-label="Close" id="close-button"></button>
         </div>
+        <div class="toast-timer-bar bg-secondary pt-1" id="toast-timer-bar"></div>
         <div class="toast-body" id="toast-body">
             Body
         </div>
@@ -194,5 +195,13 @@
         position: absolute;
         z-index: 1000;
         min-width: 7em;
+    }
+
+    .toast-timer-bar {
+        animation: timer-bar 7s linear forwards;
+    }
+    @keyframes timer-bar {
+        from {width: 100%}
+        to {width: 0%;}
     }
 </style>
