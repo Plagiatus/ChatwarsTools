@@ -20,11 +20,13 @@ canvasWrapper.addEventListener("dblclick", handleMouseDblClick);
 
 document.getElementById("highlightBossCheck")?.addEventListener("change", highlightBossCheck);
 document.getElementById("highlightStartCheck")?.addEventListener("change", highlightStartCheck);
+document.getElementById("startResetsPaths")?.addEventListener("change", startResetsPathsCheck);
 document.getElementById("findPosition")?.addEventListener("click", findPosition);
 document.getElementById("resetMaze")?.addEventListener("click", resetMaze);
 
 let bossHighlighted: boolean = (<HTMLInputElement>document.getElementById("highlightBossCheck"))?.checked ?? false;
 let startHighlighted: boolean = (<HTMLInputElement>document.getElementById("highlightStartCheck"))?.checked ?? false;
+let startResetsPaths: boolean = (<HTMLInputElement>document.getElementById("startResetsPaths"))?.checked ?? false;
 
 
 (<HTMLInputElement>document.getElementById("maxSteps")).addEventListener("change", updateMaxSteps);
@@ -72,7 +74,8 @@ function handleMouseDblClick(e: MouseEvent) {
     hideError();
     resetInfo(false);
     startPosition = [x, y];
-    resetPath();
+    if(startResetsPaths) resetPath();
+    else resetHighlights();
 }
 
 /**
@@ -107,13 +110,16 @@ function highlightStart(big: boolean = startHighlighted) {
     highlightCtx.fill(p);
 }
 
-function highlightBossCheck(e: Event) {
-    bossHighlighted = (<HTMLInputElement>e.target).checked;
+function highlightBossCheck(this: HTMLInputElement, e: Event) {
+    bossHighlighted = this.checked;
     resetHighlights();
 }
-function highlightStartCheck(e: Event) {
-    startHighlighted = (<HTMLInputElement>e.target).checked;
+function highlightStartCheck(this: HTMLInputElement, e: Event) {
+    startHighlighted = this.checked;
     resetHighlights();
+}
+function startResetsPathsCheck(this: HTMLInputElement, e: Event) {
+    startResetsPaths = this.checked;
 }
 
 function updateMaxSteps(this: HTMLInputElement, e: Event) {
