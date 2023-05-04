@@ -65,11 +65,11 @@ function loadImage() {
 
     let img = new Image();
     img.addEventListener("load", () => {
-        for (let canvas of canvases) {
-            canvas.width = img.width;
-            canvas.height = img.height;
+        for (let ctx of canvasRenderingContexts.values()) {
+            ctx.canvas.width = img.width;
+            ctx.canvas.height = img.height;
         }
-        bgCtx?.drawImage(img, 0, 0);
+        canvasRenderingContexts.get("bg")?.drawImage(img, 0, 0);
         loadMaze(img.width, img.height);
         resetMaze();
     })
@@ -92,7 +92,8 @@ const loadingAlgorithms: LoadingAlgorithm = {
  * Loads the maze in Tile[][] form from the image input, by choosing the selected algorithm
  */
 function loadMaze(width: number, height: number) {
-    imgData = bgCtx.getImageData(0, 0, bgCanvas.width, bgCanvas.height);
+    let bgCtx = canvasRenderingContexts.get("bg")!;
+    imgData = bgCtx.getImageData(0, 0, bgCtx.canvas.width, bgCtx.canvas.height);
     bgCtx.save();
     maze = [];
     emptyMaze = [];
@@ -232,7 +233,8 @@ function findPosition() {
     if (maze.length < 1) {
         throw new Error("Maze not loaded yet.");
     }
-    let foundAnything = false;
+    resetHighlights();
+    let foundPositions: [number, number][] = [];
     for (let mazeY: number = 0; mazeY < maze.length; mazeY++) {
         for (let mazeX: number = 0; mazeX < maze[mazeY].length; mazeX++) {
             let found: boolean = true;
@@ -258,12 +260,14 @@ function findPosition() {
             }
             if (found) {
                 outputFoundPosition(mazeX, mazeY, pattern);
-                foundAnything = true;
+                foundPositions.push([mazeX, mazeY]);
             }
         }
     }
-    if (!foundAnything) {
+    if (foundPositions.length === 0) {
         throw new Error("Couldn't find the position on the map.")
+    } else {
+        showNotification("Position Finder", `Found ${foundPositions.length} positions that match the pattern:<br>${foundPositions.map((value)=>`x:${value[0]} y:${value[1]}`).join("<br>")}`);
     }
 }
 
@@ -272,11 +276,12 @@ function findPosition() {
  */
 function outputFoundPosition(mazeX: number, mazeY: number, pattern: Tile[][]) {
     console.log("found position", mazeX, mazeY);
+    let ctx = canvasRenderingContexts.get("highlight")!;
 
-    highlightCtx.fillStyle = "rgba(0, 255, 0, 0.2)";
-    highlightCtx.strokeStyle = "rgba(0, 255, 0, 0.8)";
-    highlightCtx.fillRect(mazeX * rasterSize, mazeY * rasterSize, pattern[0].length * rasterSize, pattern.length * rasterSize);
-    highlightCtx.strokeRect(mazeX * rasterSize, mazeY * rasterSize, pattern[0].length * rasterSize, pattern.length * rasterSize);
+    ctx.fillStyle = "rgba(0, 255, 0, 0.2)";
+    ctx.strokeStyle = "rgba(0, 255, 0, 0.8)";
+    ctx.fillRect(mazeX * rasterSize, mazeY * rasterSize, pattern[0].length * rasterSize, pattern.length * rasterSize);
+    ctx.strokeRect(mazeX * rasterSize, mazeY * rasterSize, pattern[0].length * rasterSize, pattern.length * rasterSize);
 }
 
 
@@ -470,7 +475,7 @@ async function calculatePathRecursive(x: number, y: number, stepsLeft: number, s
  * @deprecated
  */
 function drawPaths() {
-    resetMaze();
+    resetPath();
     for (let path of foundPaths) {
         drawPath(path)
     }

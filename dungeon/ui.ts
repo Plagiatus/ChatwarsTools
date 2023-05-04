@@ -1,17 +1,8 @@
 const canvasOverlay: HTMLDivElement = <HTMLDivElement>document.getElementById("canvas-hover-info");
 const canvasWrapper: HTMLDivElement = <HTMLDivElement>document.getElementById("canvas-wrapper");
 
-const canvases = document.getElementsByTagName("canvas");
-const bgCanvas = canvases[0];
-const bgCtx: CanvasRenderingContext2D = <CanvasRenderingContext2D>bgCanvas.getContext("2d");
-const highlightCanvas = canvases[1];
-const highlightCtx: CanvasRenderingContext2D = <CanvasRenderingContext2D>highlightCanvas.getContext("2d");
-const pathCanvas = canvases[2];
-const pathCtx: CanvasRenderingContext2D = <CanvasRenderingContext2D>pathCanvas.getContext("2d");
-const surroundingInfoCanvas = canvases[3];
-const surroundingInfoCtx: CanvasRenderingContext2D = <CanvasRenderingContext2D>surroundingInfoCanvas.getContext("2d");
-const interactableCanvas = canvases[4];
-const interactableCtx: CanvasRenderingContext2D = <CanvasRenderingContext2D>interactableCanvas.getContext("2d");
+const canvasRenderingContexts: Map<string, CanvasRenderingContext2D> = new Map();
+initCanvases();
 
 canvasWrapper.addEventListener("mousemove", showHoverInfo);
 canvasWrapper.addEventListener("mouseleave", hideHoverInfo);
@@ -22,6 +13,19 @@ document.getElementById("findPosition")?.addEventListener("click", findPosition)
 document.getElementById("resetMaze")?.addEventListener("click", resetMaze);
 
 let currentSelectedPosition: Vector2 = { x: -1, y: -1 };
+
+function initCanvases(){
+    canvasRenderingContexts.set("bg", document.createElement("canvas").getContext("2d")!);
+    canvasRenderingContexts.set("highlight", document.createElement("canvas").getContext("2d")!);
+    canvasRenderingContexts.set("positionFinder", document.createElement("canvas").getContext("2d")!);
+    canvasRenderingContexts.set("path", document.createElement("canvas").getContext("2d")!);
+    canvasRenderingContexts.set("surroundingInfo", document.createElement("canvas").getContext("2d")!);
+    canvasRenderingContexts.set("interactable", document.createElement("canvas").getContext("2d")!);
+
+    for(let ctx of canvasRenderingContexts.values()){
+        canvasWrapper.appendChild(ctx.canvas);
+    }
+}
 
 function showHoverInfo(e: MouseEvent) {
     canvasOverlay.classList.remove("hidden");
@@ -49,7 +53,7 @@ function handleMouseClick(e: MouseEvent) {
 }
 
 function getCanvasPosition(e: MouseEvent): Vector2 {
-    let rect = interactableCanvas.getBoundingClientRect();
+    let rect = canvasWrapper.getBoundingClientRect();
 
     let x: number = Math.floor((e.clientX - rect.left) / rasterSize);
     let y: number = Math.floor((e.clientY - rect.top) / rasterSize);
@@ -72,6 +76,7 @@ function highlightBoss() {
     if (bossPosition[0] < 0 || bossPosition[1] < 0) throw new Error("Invalid Boss Position");
     let p: Path2D = new Path2D();
     p.arc(bossPosition[0] * rasterSize, bossPosition[1] * rasterSize, rasterSize * 10, 0, 2 * Math.PI);
+    let highlightCtx = canvasRenderingContexts.get("highlight")!;
     highlightCtx.fillStyle = "rgba(255, 0, 0, 0.2)";
     highlightCtx.fill(p);
 }
@@ -81,6 +86,7 @@ function highlightBoss() {
  */
 function highlightStart(big: boolean = settings.startHighlighted) {
     if (startPosition[0] < 0 || startPosition[1] < 0) throw new Error("Invalid Start Position");
+    let highlightCtx = canvasRenderingContexts.get("highlight")!;
     highlightCtx.fillStyle = "rgba(0, 0, 255, 0.2)";
     highlightCtx.strokeStyle = "rgba(0, 0, 255, 0.8)";
     let p: Path2D = new Path2D();
@@ -91,30 +97,32 @@ function highlightStart(big: boolean = settings.startHighlighted) {
 }
 
 function resetMaze() {
-    for (let canvas of canvases) {
-        canvas.getContext("2d")?.clearRect(0, 0, canvas.width, canvas.height);
+    for (let ctx of canvasRenderingContexts.values()) {
+        ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
     }
-    bgCtx.putImageData(imgData, 0, 0);
+    
+    canvasRenderingContexts.get("bg")!.putImageData(imgData, 0, 0);
     resetHighlights();
 }
 
 
 function resetCanvas(ctx: CanvasRenderingContext2D) {
-    ctx.clearRect(0, 0, bgCanvas.width, bgCanvas.height);
+    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 }
 
 function resetPath() {
-    resetCanvas(pathCtx);
-    resetHighlights();
+    resetCanvas(canvasRenderingContexts.get("path")!);
+    // resetHighlights();
 }
 
 function resetHighlights() {
-    resetCanvas(highlightCtx);
+    resetCanvas(canvasRenderingContexts.get("highlight")!);
     if (startPosition[0] >= 0 && startPosition[1] >= 0) highlightStart();
     if (settings.bossHighlighted) highlightBoss();
 }
 
 function resetInfo(showCurrentPosition: boolean = true) {
+    let surroundingInfoCtx = canvasRenderingContexts.get("surroundingInfo")!;
     resetCanvas(surroundingInfoCtx);
 
     if (!showCurrentPosition) return;
@@ -140,6 +148,7 @@ function resetInfo(showCurrentPosition: boolean = true) {
  * draws a circle around the tiles that should be interacted with
  */
 function highlightStop(position: Vector2, color: string = currentPathColor) {
+    let pathCtx = canvasRenderingContexts.get("path")!;
     pathCtx.fillStyle = color;
     pathCtx.strokeStyle = color;
     pathCtx.setLineDash([]);
@@ -169,6 +178,7 @@ function drawPath(path: [number, number][], fat: boolean = false, color?: string
         }
         p.lineTo(path[i][1] * rasterSize + rasterSize / 2 + offsetX, path[i][0] * rasterSize + rasterSize / 2 + offsetY);
     }
+    let pathCtx = canvasRenderingContexts.get("path")!;
     pathCtx.strokeStyle = color ?? `hsl(${Math.floor(Math.random() * 360)}, 70%, 40%)`;
     if (showProgress) pathCtx.strokeStyle = "black";
     if (fat) pathCtx.lineWidth = inputMazeType == "cw" ? 3 : 5;
@@ -187,6 +197,7 @@ function showSurroundingInfo() {
     let path: Vector2[] = [];
     surroundingInfoRecursive(currentSelectedPosition, path, distances, settings.maxSteps);
 
+    let surroundingInfoCtx = canvasRenderingContexts.get("surroundingInfo")!;
     surroundingInfoCtx.strokeStyle = "rgba(0,0,0,0.5)";
     for (let pair of distances) {
         let pos = stringToVector(pair[0]);
