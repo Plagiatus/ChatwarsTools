@@ -1,15 +1,27 @@
+/*
+To add new settings, do the following:
+1. add it to the interface
+2. add the HTML elements to the html, add it to the list of html elements to be searched in the dom
+3. set up listeners on the change of the html element and the corresponding function
+4. set up html changer for the settings loader in syncUIToValues()
+5. add to loadSettingsFromStorage()
+6. add to resetSettings()
+*/
+
+
 interface Settings {
     maxSteps: number,
     startResetsPath: boolean,
     bossHighlighted: boolean,
     startHighlighted: boolean,
+    scribbleLines: boolean,
     boss: {
         onlyThroughBonfires: boolean,
         weights: { fountain: number, bonfire: number, monster: number },
     },
     treasure: {
         fountainsOnly: boolean,
-        multipliers: { monster: number, treasure: number }
+        multipliers: { monster: number, treasure: number },
     },
 }
 
@@ -18,6 +30,7 @@ const maxStepsElement = <HTMLInputElement>document.getElementById("maxSteps");
 const startResetsPathElement = <HTMLInputElement>document.getElementById("startResetsPaths");
 const highlightBossElement = <HTMLInputElement>document.getElementById("highlightBossCheck");
 const highlightStartElement = <HTMLInputElement>document.getElementById("highlightStartCheck");
+const scribbleLinesElement = <HTMLInputElement>document.getElementById("scribbleLinesCheck");
 
 const approachBossOnlyThroughBonfireElement = <HTMLInputElement>document.getElementById("approachBossOnlyThroughBonfire");
 const fountainWeightElement = <HTMLInputElement>document.getElementById("fountainWeight");
@@ -34,6 +47,7 @@ approachBossOnlyThroughBonfireElement.addEventListener("change", approachBossOnl
 fountainWeightElement.addEventListener("change", fountainWeightChange);
 bonfireWeightElement.addEventListener("change", bonfireWeightChange);
 monsterWeightElement.addEventListener("change", monsterWeightChange);
+scribbleLinesElement.addEventListener("change", scribbleLinesChange);
 
 document.getElementById("resetSettings")?.addEventListener("click", resetSettings);
 
@@ -93,6 +107,12 @@ function monsterWeightChange(this: HTMLInputElement, e: Event) {
     saveSettingsToStorage();
     needsRecalculation = true;
 }
+function scribbleLinesChange(this: HTMLInputElement, e: Event) {
+    settings.scribbleLines = this.checked;
+    if (settings.scribbleLines === undefined) settings.scribbleLines = false;
+    this.checked = settings.scribbleLines;
+    saveSettingsToStorage();
+}
 //#endregion
 
 
@@ -108,6 +128,7 @@ function loadSettingsFromStorage(): Settings {
     if (loadedSettings.startResetsPath === undefined) loadedSettings.startResetsPath = false;
     if (loadedSettings.bossHighlighted === undefined) loadedSettings.bossHighlighted = false;
     if (loadedSettings.startHighlighted === undefined) loadedSettings.startHighlighted = false;
+    if (loadedSettings.scribbleLines === undefined) loadedSettings.scribbleLines = false;
 
     if (loadedSettings.boss === undefined) loadedSettings.boss = { onlyThroughBonfires: true, weights: { bonfire: 5, fountain: 1, monster: 3 } };
     if (loadedSettings.boss.onlyThroughBonfires === undefined) loadedSettings.boss.onlyThroughBonfires = true;
@@ -140,6 +161,7 @@ function syncUIToValues() {
     fountainWeightElement.value = settings.boss.weights.fountain.toString();
     bonfireWeightElement.value = settings.boss.weights.bonfire.toString();
     monsterWeightElement.value = settings.boss.weights.monster.toString();
+    scribbleLinesElement.checked = settings.scribbleLines;
 }
 
 function resetSettings() {
@@ -147,6 +169,7 @@ function resetSettings() {
     settings.bossHighlighted = false;
     settings.startHighlighted = false;
     settings.startResetsPath = false;
+    settings.scribbleLines = false;
     settings.boss = { onlyThroughBonfires: true, weights: { bonfire: 5, fountain: 1, monster: 3 } };
     saveSettingsToStorage();
     syncUIToValues();

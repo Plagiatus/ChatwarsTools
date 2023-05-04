@@ -163,16 +163,20 @@ interface PathDrawingOptions {
     color?: string,
     dashed?: boolean,
     directional?: boolean,
+    randomOffset?: boolean,
 }
 /**
  * Draws a path (segment) onto the map
  */
-function drawPath(path: [number, number][], options: PathDrawingOptions = { fat: false, dashed: false, directional: false }) {
+function drawPath(path: [number, number][], options?: PathDrawingOptions) {
+    options = {...{ fat: false, dashed: false, directional: false, randomOffset: settings.scribbleLines, }, ...options};
+    console.log({options});
     let p: Path2D = new Path2D();
     let position = path[0] ?? [-1, -1];
     let offsetX = 0, offsetY = 0;
     p.moveTo(position[1] * rasterSize + rasterSize / 2, position[0] * rasterSize + rasterSize / 2);
     for (let i: number = 1; i < path.length; i++) {
+        offsetX = offsetY = 0;
         if (options.directional) {
             if (path.length - 1 == i || i == 0) {
                 offsetX = offsetY = 0;
@@ -180,6 +184,11 @@ function drawPath(path: [number, number][], options: PathDrawingOptions = { fat:
                 offsetY = Math.sign(path[i - 1][1] - path[i + 1][1]) * rasterSize / -4;
                 offsetX = Math.sign(path[i - 1][0] - path[i + 1][0]) * rasterSize / 4;
             }
+        }
+        if(options.randomOffset) {
+            let maxOffset: number = rasterSize / (options.directional ? 4 : 2);
+            offsetX += Math.floor(Math.random() * maxOffset * 2) - maxOffset;
+            offsetY += Math.floor(Math.random() * maxOffset * 2) - maxOffset;
         }
         p.lineTo(path[i][1] * rasterSize + rasterSize / 2 + offsetX, path[i][0] * rasterSize + rasterSize / 2 + offsetY);
     }
