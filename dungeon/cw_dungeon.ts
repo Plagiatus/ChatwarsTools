@@ -378,7 +378,7 @@ async function calculatePath(e: MouseEvent) {
 
     //show shortest path, but fatter
     foundPaths.sort((a, b) => { return a.length - b.length });
-    if (foundPaths.length > 0) drawPath(foundPaths[0], true);
+    if (foundPaths.length > 0) drawPath(foundPaths[0], {fat: true});
 
     (<HTMLButtonElement>e.target).disabled = false;
 }

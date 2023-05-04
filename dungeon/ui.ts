@@ -14,7 +14,7 @@ document.getElementById("resetMaze")?.addEventListener("click", resetMaze);
 
 let currentSelectedPosition: Vector2 = { x: -1, y: -1 };
 
-function initCanvases(){
+function initCanvases() {
     canvasRenderingContexts.set("bg", document.createElement("canvas").getContext("2d")!);
     canvasRenderingContexts.set("highlight", document.createElement("canvas").getContext("2d")!);
     canvasRenderingContexts.set("positionFinder", document.createElement("canvas").getContext("2d")!);
@@ -22,7 +22,7 @@ function initCanvases(){
     canvasRenderingContexts.set("surroundingInfo", document.createElement("canvas").getContext("2d")!);
     canvasRenderingContexts.set("interactable", document.createElement("canvas").getContext("2d")!);
 
-    for(let ctx of canvasRenderingContexts.values()){
+    for (let ctx of canvasRenderingContexts.values()) {
         canvasWrapper.appendChild(ctx.canvas);
     }
 }
@@ -65,7 +65,7 @@ function handleMouseDblClick(e: MouseEvent) {
     let { x, y } = getCanvasPosition(e);
     resetInfo(false);
     startPosition = [x, y];
-    if(settings.startResetsPath) resetPath();
+    if (settings.startResetsPath) resetPath();
     else resetHighlights();
 }
 
@@ -100,7 +100,7 @@ function resetMaze() {
     for (let ctx of canvasRenderingContexts.values()) {
         ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
     }
-    
+
     canvasRenderingContexts.get("bg")!.putImageData(imgData, 0, 0);
     resetHighlights();
 }
@@ -158,17 +158,22 @@ function highlightStop(position: Vector2, color: string = currentPathColor) {
     pathCtx.stroke(p);
 }
 
-
+interface PathDrawingOptions {
+    fat?: boolean,
+    color?: string,
+    dashed?: boolean,
+    directional?: boolean,
+}
 /**
  * Draws a path (segment) onto the map
  */
-function drawPath(path: [number, number][], fat: boolean = false, color?: string, dashed: boolean = false, directional: boolean = false) {
+function drawPath(path: [number, number][], options: PathDrawingOptions = { fat: false, dashed: false, directional: false }) {
     let p: Path2D = new Path2D();
     let position = path[0] ?? [-1, -1];
     let offsetX = 0, offsetY = 0;
     p.moveTo(position[1] * rasterSize + rasterSize / 2, position[0] * rasterSize + rasterSize / 2);
     for (let i: number = 1; i < path.length; i++) {
-        if (directional) {
+        if (options.directional) {
             if (path.length - 1 == i || i == 0) {
                 offsetX = offsetY = 0;
             } else {
@@ -179,10 +184,10 @@ function drawPath(path: [number, number][], fat: boolean = false, color?: string
         p.lineTo(path[i][1] * rasterSize + rasterSize / 2 + offsetX, path[i][0] * rasterSize + rasterSize / 2 + offsetY);
     }
     let pathCtx = canvasRenderingContexts.get("path")!;
-    pathCtx.strokeStyle = color ?? `hsl(${Math.floor(Math.random() * 360)}, 70%, 40%)`;
+    pathCtx.strokeStyle = options.color ?? `hsl(${Math.floor(Math.random() * 360)}, 70%, 40%)`;
     if (showProgress) pathCtx.strokeStyle = "black";
-    if (fat) pathCtx.lineWidth = inputMazeType == "cw" ? 3 : 5;
-    if (dashed) pathCtx.setLineDash([rasterSize / 2, rasterSize / 4]);
+    if (options.fat) pathCtx.lineWidth = inputMazeType == "cw" ? 3 : 5;
+    if (options.dashed) pathCtx.setLineDash([rasterSize / 2, rasterSize / 4]);
     pathCtx.stroke(p);
     pathCtx.lineWidth = 1;
     pathCtx.setLineDash([]);

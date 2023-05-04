@@ -132,7 +132,7 @@ function findTreasureRoute(){
         }
         position = <Vector2> node.previous;
         highlightStop(position);
-        drawPath(vectorArrayToTupleArray(node.pathToPrevious ?? []), false, currentPathColor, false, true);
+        drawPath(vectorArrayToTupleArray(node.pathToPrevious ?? []), {color: currentPathColor, directional: true});
         currentPathColor = randomHSLA();
     }
 }

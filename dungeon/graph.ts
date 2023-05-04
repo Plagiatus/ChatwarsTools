@@ -221,7 +221,7 @@ function findPathFromNodes() {
         }
         position = <Vector2>node.previous;
         highlightStop(position);
-        drawPath(vectorArrayToTupleArray(node.pathToPrevious ?? []), true, currentPathColor, dashed);
+        drawPath(vectorArrayToTupleArray(node.pathToPrevious ?? []), {fat: true, color:currentPathColor, dashed});
     }
 }
 
@@ -282,7 +282,7 @@ function findAndHighlightClosestFountainsAndBonfires(): CWConnection[] {
     let connections = findAllConnections({ position: { x: startPosition[0], y: startPosition[1] }, distance: Infinity, type: TileType.WALL, visited: false }, settings.maxSteps);
     currentPathColor = randomHSLA(0.4);
     for (let connection of connections) {
-        drawPath(vectorArrayToTupleArray(connection.path), false, currentPathColor);
+        drawPath(vectorArrayToTupleArray(connection.path), {color: currentPathColor});
     }
     currentPathColor = randomHSLA();
     return connections;
