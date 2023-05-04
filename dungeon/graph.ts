@@ -30,12 +30,6 @@ interface Vector2 {
     y: number,
 }
 
-const tileToWeight: Map<TileType, number> = new Map<TileType, number>([
-    [TileType.FOUNTAIN, 1],
-    [TileType.BOSS, 1],
-    [TileType.BONFIRE, 5],
-    [TileType.MONSTER, 3],
-])
 
 /*
 To speed up calculation times, using maps to store nodes and connections of those nodes.
@@ -50,7 +44,6 @@ let allCWConnections: Map<string, CWConnection[]> = new Map<string, CWConnection
 
 let previousStepLength: number = 0;
 let needsRecalculation: boolean = false;
-let bossApproachOnlyThroughBonfires = true;
 
 /**
  * Traverse maze tiles and calculate 
@@ -70,11 +63,11 @@ function initCWNodes() {
                 allCWNodes.set(vectorToString(position), node);
 
                 //init all connections
-                allCWConnections.set(vectorToString(node.position), findAllConnections(node, maxSteps));
+                allCWConnections.set(vectorToString(node.position), findAllConnections(node, settings.maxSteps));
             }
         }
     }
-    previousStepLength = maxSteps;
+    previousStepLength = settings.maxSteps;
     calculateDistanceToBoss();
     console.log(allCWConnections);
 }
@@ -83,14 +76,13 @@ function initCWNodes() {
 function calculatePathWithNodes(this: HTMLInputElement, event: Event) {
     resetPath();
     let treasureRun: boolean = this.id === "calculateTreasureRun";
-    maxSteps = +(<HTMLInputElement>document.getElementById("maxSteps")).value;
     // are recalculations needed?
-    if (previousStepLength != maxSteps || needsRecalculation) {
+    if (previousStepLength != settings.maxSteps || needsRecalculation) {
         allCWConnections = new Map<string, CWConnection[]>();
         for (let node of allCWNodes.values()) {
-            allCWConnections.set(vectorToString(node.position), findAllConnections(node, maxSteps));
+            allCWConnections.set(vectorToString(node.position), findAllConnections(node, settings.maxSteps));
         }
-        previousStepLength = maxSteps;
+        previousStepLength = settings.maxSteps;
         if(!treasureRun) {
             calculateDistanceToBoss();
         }
@@ -115,7 +107,7 @@ function findAllConnections(node: CWNode, maxSteps: number): CWConnection[] {
     }
 
     // if this is the boss node and the boss should only be approached through campfires (for coordinated attacks), throw out all non-campfire nodes from the found connections
-    if (bossApproachOnlyThroughBonfires && node.type === TileType.BOSS) {
+    if (settings.boss.onlyThroughBonfires && node.type === TileType.BOSS) {
         for (let i: number = 0; i < newConnections.length; i++) {
             if (maze[newConnections[i].position.y][newConnections[i].position.x].type === TileType.FOUNTAIN) {
                 newConnections.splice(i, 1);
@@ -141,18 +133,18 @@ function findConnectionsRecursive(position: Vector2, remainingSteps: number, pat
     let newContents: ConnectionContents = structuredClone(contents);
 
     if (maze[position.y][position.x].type === TileType.MONSTER) {
-        currentPathCost += tileToWeight.get(TileType.MONSTER) ?? 0;
+        currentPathCost += getTileWeight(TileType.MONSTER);
         newContents.monsters++;
     }
     if (maze[position.y][position.x].type === TileType.TREASURE) {
         newContents.treasures++;
     }
     if (maze[position.y][position.x].type === TileType.FOUNTAIN) {
-        let weight: number = currentPathCost + (tileToWeight.get(TileType.FOUNTAIN) ?? 0);
+        let weight: number = currentPathCost + getTileWeight(TileType.FOUNTAIN);
         newConnections.push({ path: newPath, position, weight, contents: newContents });
     }
     if (maze[position.y][position.x].type === TileType.BONFIRE) {
-        let weight: number = currentPathCost + (tileToWeight.get(TileType.BONFIRE) ?? 0);
+        let weight: number = currentPathCost + getTileWeight(TileType.BONFIRE);
         newConnections.push({ path: newPath, position, weight, contents: newContents });
     }
 
@@ -284,33 +276,10 @@ function randomHSLA(alpha: number = 0.8) {
     return `hsla(${previousColorAngle += 60}, 70%, 50%, ${alpha})`;
 }
 
-/** An eventlistener that sets the calculation relevant weights if they are changed by the user to prompt a recalculation */
-function weightChange(this: HTMLInputElement, event: Event) {
-    switch (this.id) {
-        case "pathWeight":
-            tileToWeight.set(TileType.FOUNTAIN, +this.value);
-            break;
-        case "monsterWeight":
-            tileToWeight.set(TileType.MONSTER, +this.value);
-            break;
-        case "bonfireWeight":
-            tileToWeight.set(TileType.BONFIRE, +this.value);
-            break;
-    }
-
-    needsRecalculation = true;
-}
-
-/** An eventlistener that updates internal values as needed when the user toggles a checkbox. */
-function approachBoss(this: HTMLInputElement, e: Event) {
-    bossApproachOnlyThroughBonfires = this.checked;
-    needsRecalculation = true;
-}
-
 /** Called if the selected starting position is not already a bonfire or fountain. Returns all connections reachable from the position assuming a full step distance. */
 function findAndHighlightClosestFountainsAndBonfires(): CWConnection[] {
     if (maze[startPosition[1]][startPosition[0]].type === TileType.WALL) throw new Error("Start Position cannot be on a wall.");
-    let connections = findAllConnections({ position: { x: startPosition[0], y: startPosition[1] }, distance: Infinity, type: TileType.WALL, visited: false }, maxSteps);
+    let connections = findAllConnections({ position: { x: startPosition[0], y: startPosition[1] }, distance: Infinity, type: TileType.WALL, visited: false }, settings.maxSteps);
     currentPathColor = randomHSLA(0.4);
     for (let connection of connections) {
         drawPath(vectorArrayToTupleArray(connection.path), false, currentPathColor);
@@ -320,13 +289,3 @@ function findAndHighlightClosestFountainsAndBonfires(): CWConnection[] {
 }
 
 document.getElementById("calculatePathWithNodes")?.addEventListener("click", calculatePathWithNodes);
-document.getElementById("pathWeight")?.addEventListener("change", weightChange);
-document.getElementById("monsterWeight")?.addEventListener("change", weightChange);
-document.getElementById("bonfireWeight")?.addEventListener("change", weightChange);
-document.getElementById("approachBossOnlyThroughBonfire")?.addEventListener("change", approachBoss);
-
-tileToWeight.set(TileType.FOUNTAIN, +(<HTMLInputElement>document.getElementById("fountainWeight")).value ?? 1);
-tileToWeight.set(TileType.MONSTER, +(<HTMLInputElement>document.getElementById("monsterWeight")).value ?? 3);
-tileToWeight.set(TileType.BONFIRE, +(<HTMLInputElement>document.getElementById("bonfireWeight")).value ?? 5);
-
-bossApproachOnlyThroughBonfires = (<HTMLInputElement>document.getElementById("approachBossOnlyThroughBonfire")).checked;

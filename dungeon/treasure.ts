@@ -7,8 +7,6 @@ document.getElementById("calculateTreasureRun")?.addEventListener("click", calcu
 //     cumulativeContents: ConnectionContents,
 // }
 
-let treasureMultipliers: ConnectionContents = { monsters: 1, treasures: 1 };
-let fountainsInTreasureRouteOnly: boolean = true;
 // let maxAmountOfTreasureRouteStops: number = 10;
 
 // /** Calculates the path with the most treasure / monsters on it you can take before running out of fountains */
@@ -83,7 +81,7 @@ function findHighestTreasureRoute() {
         remainingNodes.sort(sortNodesByDistance);
         let highestNode: CWNode = <CWNode>remainingNodes.pop();
         if(highestNode.type === TileType.BOSS) continue;
-        if(highestNode.type !== TileType.FOUNTAIN && fountainsInTreasureRouteOnly) continue;
+        if(highestNode.type !== TileType.FOUNTAIN && settings.treasure.fountainsOnly) continue;
         // all the connections of the current lowest distance node
         let connections: CWConnection[] = <CWConnection[]>allCWConnections.get(vectorToString(highestNode.position));
         for (let connection of connections) {
@@ -105,8 +103,8 @@ function findHighestTreasureRoute() {
 }
 
 function getConnectionTreasureWeight(node: CWConnection): number {
-    return node.contents.monsters * treasureMultipliers.monsters +
-        node.contents.treasures * treasureMultipliers.treasures;
+    return node.contents.monsters * settings.treasure.multipliers.monster +
+        node.contents.treasures * settings.treasure.multipliers.treasure;
 }
 
 function findTreasureRoute(){

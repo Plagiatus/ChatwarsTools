@@ -6,7 +6,11 @@ interface Settings {
     boss: {
         onlyThroughBonfires: boolean,
         weights: { fountain: number, bonfire: number, monster: number },
-    }
+    },
+    treasure: {
+        fountainsOnly: boolean,
+        multipliers: { monster: number, treasure: number }
+    },
 }
 
 // get relevant HTML Elements
@@ -31,7 +35,7 @@ fountainWeightElement.addEventListener("change", fountainWeightChange);
 bonfireWeightElement.addEventListener("change", bonfireWeightChange);
 monsterWeightElement.addEventListener("change", monsterWeightChange);
 
-document.getElementById("resetSettings")!.addEventListener("click", resetSettings);
+document.getElementById("resetSettings")?.addEventListener("click", resetSettings);
 
 //#region values changed in the UI -> update in storage
 function maxStepsChange(this: HTMLInputElement, e: Event) {
@@ -39,6 +43,7 @@ function maxStepsChange(this: HTMLInputElement, e: Event) {
     if (isNaN(settings.maxSteps) || settings.maxSteps <= 0) settings.maxSteps = 30;
     this.value = settings.maxSteps.toString();
     saveSettingsToStorage();
+    needsRecalculation = true;
 }
 function startResetsPathChange(this: HTMLInputElement, e: Event) {
     settings.startResetsPath = this.checked;
@@ -51,36 +56,42 @@ function highlightBossChange(this: HTMLInputElement, e: Event) {
     if (settings.bossHighlighted === undefined) settings.bossHighlighted = false;
     this.checked = settings.bossHighlighted;
     saveSettingsToStorage();
+    resetHighlights();
 }
 function highlightStartChange(this: HTMLInputElement, e: Event) {
     settings.startHighlighted = this.checked;
     if (settings.startHighlighted === undefined) settings.startHighlighted = false;
     this.checked = settings.startHighlighted;
     saveSettingsToStorage();
+    resetHighlights();
 }
 function approachBossOnlyThroughBonfireChange(this: HTMLInputElement, e: Event) {
     settings.boss.onlyThroughBonfires = this.checked;
     if (settings.boss.onlyThroughBonfires === undefined) settings.boss.onlyThroughBonfires = false;
     this.checked = settings.boss.onlyThroughBonfires;
     saveSettingsToStorage();
+    needsRecalculation = true;
 }
 function fountainWeightChange(this: HTMLInputElement, e: Event) {
     settings.boss.weights.fountain = +this.value;
     if (isNaN(settings.boss.weights.fountain) || settings.boss.weights.fountain <= 0) settings.boss.weights.fountain = 30;
     this.value = settings.boss.weights.fountain.toString();
     saveSettingsToStorage();
+    needsRecalculation = true;
 }
 function bonfireWeightChange(this: HTMLInputElement, e: Event) {
     settings.boss.weights.bonfire = +this.value;
     if (isNaN(settings.boss.weights.bonfire) || settings.boss.weights.bonfire <= 0) settings.boss.weights.bonfire = 30;
     this.value = settings.boss.weights.bonfire.toString();
     saveSettingsToStorage();
+    needsRecalculation = true;
 }
 function monsterWeightChange(this: HTMLInputElement, e: Event) {
     settings.boss.weights.monster = +this.value;
     if (isNaN(settings.boss.weights.monster) || settings.boss.weights.monster <= 0) settings.boss.weights.monster = 30;
     this.value = settings.boss.weights.monster.toString();
     saveSettingsToStorage();
+    needsRecalculation = true;
 }
 //#endregion
 
@@ -97,12 +108,19 @@ function loadSettingsFromStorage(): Settings {
     if (loadedSettings.startResetsPath === undefined) loadedSettings.startResetsPath = false;
     if (loadedSettings.bossHighlighted === undefined) loadedSettings.bossHighlighted = false;
     if (loadedSettings.startHighlighted === undefined) loadedSettings.startHighlighted = false;
+
     if (loadedSettings.boss === undefined) loadedSettings.boss = { onlyThroughBonfires: true, weights: { bonfire: 5, fountain: 1, monster: 3 } };
     if (loadedSettings.boss.onlyThroughBonfires === undefined) loadedSettings.boss.onlyThroughBonfires = true;
     if (loadedSettings.boss.weights === undefined) loadedSettings.boss.weights = { bonfire: 5, fountain: 1, monster: 3 };
-    if (!loadedSettings.boss.weights.fountain) loadedSettings.boss.weights.fountain = 1;
-    if (!loadedSettings.boss.weights.bonfire) loadedSettings.boss.weights.bonfire = 5;
-    if (!loadedSettings.boss.weights.monster) loadedSettings.boss.weights.monster = 3;
+    if (loadedSettings.boss.weights.fountain === undefined) loadedSettings.boss.weights.fountain = 1;
+    if (loadedSettings.boss.weights.bonfire === undefined) loadedSettings.boss.weights.bonfire = 5;
+    if (loadedSettings.boss.weights.monster === undefined) loadedSettings.boss.weights.monster = 3;
+
+    if (!loadedSettings.treasure) loadedSettings.treasure = { fountainsOnly: true, multipliers: { monster: 1, treasure: 1 } };
+    if (loadedSettings.treasure.fountainsOnly === undefined) loadedSettings.treasure.fountainsOnly = true;
+    if (!loadedSettings.treasure.multipliers) loadedSettings.treasure.multipliers = { monster: 1, treasure: 1 };
+    if (loadedSettings.treasure.multipliers.monster === undefined) loadedSettings.treasure.multipliers.monster = 1;
+    if (loadedSettings.treasure.multipliers.treasure === undefined) loadedSettings.treasure.multipliers.treasure = 1;
 
     saveSettingsToStorage(loadedSettings);
     return loadedSettings;
@@ -112,7 +130,7 @@ function saveSettingsToStorage(s: Settings = settings) {
     localStorage.setItem("settings", JSON.stringify(s));
 }
 
-function syncUIToValues(){
+function syncUIToValues() {
     //apply loaded settings to the page elements
     maxStepsElement.value = settings.maxSteps.toString();
     startResetsPathElement.checked = settings.startResetsPath;
@@ -129,7 +147,18 @@ function resetSettings() {
     settings.bossHighlighted = false;
     settings.startHighlighted = false;
     settings.startResetsPath = false;
-    settings.boss = {onlyThroughBonfires: true, weights: { bonfire: 5, fountain: 1, monster: 3 }};
+    settings.boss = { onlyThroughBonfires: true, weights: { bonfire: 5, fountain: 1, monster: 3 } };
     saveSettingsToStorage();
     syncUIToValues();
 }
+
+//#region utility functions to get values 
+
+function getTileWeight(tile: TileType): number {
+    if (tile === TileType.FOUNTAIN) return settings.boss.weights.fountain;
+    if (tile === TileType.BONFIRE) return settings.boss.weights.bonfire;
+    if (tile === TileType.MONSTER) return settings.boss.weights.monster;
+    return 0;
+}
+
+//#endregion

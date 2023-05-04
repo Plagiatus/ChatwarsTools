@@ -334,7 +334,6 @@ function parsePattern(): Tile[][] {
 let foundPaths: [number, number][][] = [];
 let progress = 0;
 let shortestPathLegth = Infinity;
-let maxSteps: number = 30;
 let showProgress: boolean = false;
 let doTheFastWay: boolean = false;
 /**
@@ -353,7 +352,6 @@ async function calculatePath(e: MouseEvent) {
     foundPaths = [];
     showProgress = (<HTMLInputElement>document.getElementById("showProgress")).checked;
     doTheFastWay = (<HTMLInputElement>document.getElementById("doTheFastWay")).checked;
-    maxSteps = +(<HTMLInputElement>document.getElementById("maxSteps")).value;
     if (maze.length <= 0) throw new Error("Maze not loaded yet.")
     if (startPosition[0] < 0 || startPosition[1] < 0) throw new Error("Invalid Start Position");
     if (bossPosition[0] < 0 || bossPosition[1] < 0) throw new Error("Invalid Boss Position");
@@ -365,8 +363,8 @@ async function calculatePath(e: MouseEvent) {
     let newMaze: TileWithSteps[][] = structuredClone(emptyMaze);
     let fullyExplored: any[][] = structuredClone(emptyMaze);
 
-    newMaze[startPosition[1]][startPosition[0]] = tileToTileWithSteps(maze[startPosition[1]][startPosition[0]], maxSteps);
-    await calculatePathRecursive(startPosition[0], startPosition[1], maxSteps, newMaze, [], fullyExplored);
+    newMaze[startPosition[1]][startPosition[0]] = tileToTileWithSteps(maze[startPosition[1]][startPosition[0]], settings.maxSteps);
+    await calculatePathRecursive(startPosition[0], startPosition[1], settings.maxSteps, newMaze, [], fullyExplored);
     console.log("found", foundPaths.length);
     overrideStopSearch = false;
     updateProgress(true);
@@ -430,7 +428,7 @@ async function calculatePathRecursive(x: number, y: number, stepsLeft: number, s
     newMaze[y][x].visitCount = newMaze[y][x].visitCount + 1;
 
     if ((newMaze[y][x].type === TileType.BONFIRE || newMaze[y][x].type === TileType.FOUNTAIN) && !newMaze[y][x].activated) {
-        stepsLeft = maxSteps;
+        stepsLeft = settings.maxSteps;
         newMaze[y][x].activated = true;
     }
 

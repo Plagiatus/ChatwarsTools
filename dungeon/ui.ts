@@ -18,19 +18,8 @@ canvasWrapper.addEventListener("mouseleave", hideHoverInfo);
 canvasWrapper.addEventListener("click", handleMouseClick);
 canvasWrapper.addEventListener("dblclick", handleMouseDblClick);
 
-document.getElementById("highlightBossCheck")?.addEventListener("change", highlightBossCheck);
-document.getElementById("highlightStartCheck")?.addEventListener("change", highlightStartCheck);
-document.getElementById("startResetsPaths")?.addEventListener("change", startResetsPathsCheck);
 document.getElementById("findPosition")?.addEventListener("click", findPosition);
 document.getElementById("resetMaze")?.addEventListener("click", resetMaze);
-
-let bossHighlighted: boolean = (<HTMLInputElement>document.getElementById("highlightBossCheck"))?.checked ?? false;
-let startHighlighted: boolean = (<HTMLInputElement>document.getElementById("highlightStartCheck"))?.checked ?? false;
-let startResetsPaths: boolean = (<HTMLInputElement>document.getElementById("startResetsPaths"))?.checked ?? false;
-
-
-(<HTMLInputElement>document.getElementById("maxSteps")).addEventListener("change", updateMaxSteps);
-
 
 let currentSelectedPosition: Vector2 = { x: -1, y: -1 };
 
@@ -72,7 +61,7 @@ function handleMouseDblClick(e: MouseEvent) {
     let { x, y } = getCanvasPosition(e);
     resetInfo(false);
     startPosition = [x, y];
-    if(startResetsPaths) resetPath();
+    if(settings.startResetsPath) resetPath();
     else resetHighlights();
 }
 
@@ -90,7 +79,7 @@ function highlightBoss() {
 /**
  * Draws a circle on the map to make it easier to spot the selected starting position.
  */
-function highlightStart(big: boolean = startHighlighted) {
+function highlightStart(big: boolean = settings.startHighlighted) {
     if (startPosition[0] < 0 || startPosition[1] < 0) throw new Error("Invalid Start Position");
     highlightCtx.fillStyle = "rgba(0, 0, 255, 0.2)";
     highlightCtx.strokeStyle = "rgba(0, 0, 255, 0.8)";
@@ -99,22 +88,6 @@ function highlightStart(big: boolean = startHighlighted) {
     highlightCtx.stroke(p)
     if (big) p.arc(startPosition[0] * rasterSize, startPosition[1] * rasterSize, rasterSize * 10, 0, Math.PI * 2);
     highlightCtx.fill(p);
-}
-
-function highlightBossCheck(this: HTMLInputElement, e: Event) {
-    bossHighlighted = this.checked;
-    resetHighlights();
-}
-function highlightStartCheck(this: HTMLInputElement, e: Event) {
-    startHighlighted = this.checked;
-    resetHighlights();
-}
-function startResetsPathsCheck(this: HTMLInputElement, e: Event) {
-    startResetsPaths = this.checked;
-}
-
-function updateMaxSteps(this: HTMLInputElement, e: Event) {
-    maxSteps = +this.value;
 }
 
 function resetMaze() {
@@ -138,7 +111,7 @@ function resetPath() {
 function resetHighlights() {
     resetCanvas(highlightCtx);
     if (startPosition[0] >= 0 && startPosition[1] >= 0) highlightStart();
-    if (bossHighlighted) highlightBoss();
+    if (settings.bossHighlighted) highlightBoss();
 }
 
 function resetInfo(showCurrentPosition: boolean = true) {
@@ -212,7 +185,7 @@ function showSurroundingInfo() {
 
     let distances: Map<string, number> = new Map();
     let path: Vector2[] = [];
-    surroundingInfoRecursive(currentSelectedPosition, path, distances, maxSteps);
+    surroundingInfoRecursive(currentSelectedPosition, path, distances, settings.maxSteps);
 
     surroundingInfoCtx.strokeStyle = "rgba(0,0,0,0.5)";
     for (let pair of distances) {
