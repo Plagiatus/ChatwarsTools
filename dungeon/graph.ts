@@ -103,7 +103,7 @@ function findAllConnections(node: CWNode, maxSteps: number): CWConnection[] {
     let newConnections: CWConnection[] = findConnectionsRecursive(node.position, maxSteps, [], 0, { monsters: 0, treasures: 0 });
 
     //remove first one because it connects to itself.
-    if (newConnections[0].position.x === node.position.x && newConnections[0].position.y === node.position.y) {
+    if (vectorEquals(newConnections[0].position, node.position)) {
         newConnections.splice(0, 1);
     }
 
@@ -134,7 +134,7 @@ function findConnectionsRecursive(position: Vector2, remainingSteps: number, pat
     let newContents: ConnectionContents = structuredClone(contents);
 
     let isDisabled: boolean = disabledTiles.has(vectorToString(position));
-    if(!isDisabled){
+    if (!isDisabled) {
         if (maze[position.y][position.x].type === TileType.MONSTER) {
             currentPathCost += getTileWeight(TileType.MONSTER);
             newContents.monsters++;
@@ -162,7 +162,7 @@ function findConnectionsRecursive(position: Vector2, remainingSteps: number, pat
 
 /** helper function that checks whether a given position is already in an array of path steps */
 function wasHereAlready(position: Vector2, path: Vector2[]): boolean {
-    let found = path.find((v) => { return v.x === position.x && v.y === position.y });
+    let found = path.find((v) => { return vectorEquals(v, position) });
     return !!found;
 }
 
@@ -265,7 +265,7 @@ function stringToVector(s: string): Vector2 {
     return { x: Number(x), y: Number(y) };
 }
 
-function vectorEquals(a: Vector2, b: Vector2){
+function vectorEquals(a: Vector2, b: Vector2) {
     return a.x === b.x && a.y === b.y;
 }
 

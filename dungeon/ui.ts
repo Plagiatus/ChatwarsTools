@@ -55,7 +55,7 @@ function handleMouseClick(e: MouseEvent) {
     switch (e.button) {
         case 0:
             let newPosition = getCanvasPosition(e);
-            if(vectorEquals(newPosition, currentSelectedPosition)){
+            if (vectorEquals(newPosition, currentSelectedPosition)) {
                 resetInfo(false);
                 currentSelectedPosition.x = -1;
             } else {
@@ -263,7 +263,7 @@ function surroundingInfoRecursive(position: Vector2, currentPath: Vector2[], dis
     let tile = maze[position.y][position.x];
     if (!tile) return;
     if (tile.type === TileType.WALL) return;
-    if (currentPath.find(stop => stop.x === position.x && stop.y === position.y)) return;
+    if (currentPath.find(stop => vectorEquals(stop, position))) return;
 
     let newPath: Vector2[] = structuredClone(currentPath);
     newPath.push(position);

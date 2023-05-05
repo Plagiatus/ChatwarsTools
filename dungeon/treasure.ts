@@ -80,8 +80,8 @@ function findHighestTreasureRoute() {
     while (remainingNodes.length > 0) {
         remainingNodes.sort(sortNodesByDistance);
         let highestNode: CWNode = <CWNode>remainingNodes.pop();
-        if(highestNode.type === TileType.BOSS) continue;
-        if(highestNode.type !== TileType.FOUNTAIN && settings.treasure.fountainsOnly) continue;
+        if (highestNode.type === TileType.BOSS) continue;
+        if (highestNode.type !== TileType.FOUNTAIN && settings.treasure.fountainsOnly) continue;
         // all the connections of the current lowest distance node
         let connections: CWConnection[] = <CWConnection[]>allCWConnections.get(vectorToString(highestNode.position));
         for (let connection of connections) {
@@ -107,15 +107,15 @@ function getConnectionTreasureWeight(node: CWConnection): number {
         node.contents.treasures * settings.treasure.multipliers.treasure;
 }
 
-function findTreasureRoute(){
+function findTreasureRoute() {
     let startPositionVector = fixStartingPosition(startPosition)
     let startNode = <CWNode>allCWNodesWithPath.get(vectorToString(startPositionVector));
 
     // find the node with the highest distance, show that one.
     let max = -Infinity;
     let position = startNode.position;
-    allCWNodesWithTreasurePath.forEach( node => {
-        if(node.distance > max){
+    allCWNodesWithTreasurePath.forEach(node => {
+        if (node.distance > max) {
             max = node.distance;
             position = node.position;
         }
@@ -123,16 +123,16 @@ function findTreasureRoute(){
 
     let fullPath: Vector2[] = [];
     let atStartPosition: boolean = false;
-    while(!atStartPosition) {
+    while (!atStartPosition) {
         let node: CWNode = <CWNode>allCWNodesWithTreasurePath.get(vectorToString(position));
         fullPath.push(...(node.pathToPrevious ?? []));
-        if(node.position.x === startPositionVector.x && node.position.y === startPositionVector.y){
+        if (vectorEquals(node.position, startPositionVector)) {
             atStartPosition = true;
             break;
         }
-        position = <Vector2> node.previous;
+        position = <Vector2>node.previous;
         highlightStop(position);
-        drawPath(vectorArrayToTupleArray(node.pathToPrevious ?? []), {color: currentPathColor, directional: true});
+        drawPath(vectorArrayToTupleArray(node.pathToPrevious ?? []), { color: currentPathColor, directional: true });
         currentPathColor = randomHSLA();
     }
 }
