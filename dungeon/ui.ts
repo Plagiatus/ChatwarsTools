@@ -53,7 +53,7 @@ function handleMouseClick(e: MouseEvent) {
 }
 
 function getCanvasPosition(e: MouseEvent): Vector2 {
-    let rect = canvasWrapper.getBoundingClientRect();
+    let rect = canvasRenderingContexts.get("interactable")!.canvas.getBoundingClientRect();
 
     let x: number = Math.floor((e.clientX - rect.left) / rasterSize);
     let y: number = Math.floor((e.clientY - rect.top) / rasterSize);
