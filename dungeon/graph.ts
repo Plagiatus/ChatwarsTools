@@ -228,7 +228,7 @@ function findPathFromNodes() {
 
 /** Finds and returns the closest Fountain, assuming the selected starting point is not a Fountain or Campfire, highlighting all the reachable fountains in the process. */
 function fixStartingPosition(startPosition: [number, number]): Vector2 {
-    if (!maze || !maze.length || !maze[startPosition[0]]) throw new Error("Maze isn't loaded yet.");
+    if (!maze || !maze.length) throw new Error("Maze isn't loaded yet.");
     if (startPosition[0] < 0 || startPosition[1] < 0) throw new Error("Invalid Start Position. Did you select one yet (double click)?");
     let type = maze[startPosition[1]][startPosition[0]].type;
     let position: Vector2;

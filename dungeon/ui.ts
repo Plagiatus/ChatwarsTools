@@ -120,7 +120,7 @@ function resetPath() {
 function resetHighlights() {
     resetCanvas(canvasRenderingContexts.get("highlight")!);
     if (startPosition[0] >= 0 && startPosition[1] >= 0) highlightStart();
-    if (settings.bossHighlighted) highlightBoss();
+    if (settings.bossHighlighted && bossPosition[0] >= 0 && bossPosition[1] >= 0) highlightBoss();
 }
 
 function resetInfo(showCurrentPosition: boolean = true) {
@@ -171,8 +171,7 @@ interface PathDrawingOptions {
  * Draws a path (segment) onto the map
  */
 function drawPath(path: [number, number][], options?: PathDrawingOptions) {
-    options = {...{ fat: false, dashed: false, directional: false, randomOffset: settings.scribbleLines, }, ...options};
-    console.log({options});
+    options = { ...{ fat: false, dashed: false, directional: false, randomOffset: settings.scribbleLines, }, ...options };
     let p: Path2D = new Path2D();
     let position = path[0] ?? [-1, -1];
     let offsetX = 0, offsetY = 0;
@@ -187,7 +186,7 @@ function drawPath(path: [number, number][], options?: PathDrawingOptions) {
                 offsetX = Math.sign(path[i - 1][0] - path[i + 1][0]) * rasterSize / 4;
             }
         }
-        if(options.randomOffset) {
+        if (options.randomOffset) {
             let maxOffset: number = rasterSize / (options.directional ? 4 : 2);
             offsetX += Math.floor(Math.random() * maxOffset * 2) - maxOffset;
             offsetY += Math.floor(Math.random() * maxOffset * 2) - maxOffset;
@@ -205,7 +204,7 @@ function drawPath(path: [number, number][], options?: PathDrawingOptions) {
 }
 
 function showSurroundingInfo() {
-    if(!maze || !maze.length || !maze[currentSelectedPosition.y]) throw new Error("Maze isn't loaded yet.");
+    if (!maze || !maze.length || !maze[currentSelectedPosition.y]) throw new Error("Maze isn't loaded yet.");
     let tile = maze[currentSelectedPosition.y][currentSelectedPosition.x];
     if (!tile) throw new Error("Not a valid tile");
     if (tile.type === TileType.WALL) throw new Error("Cannot calculate distances from a wall");
