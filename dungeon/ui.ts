@@ -203,6 +203,7 @@ function drawPath(path: [number, number][], options?: PathDrawingOptions) {
 }
 
 function showSurroundingInfo() {
+    if(!maze || !maze.length || !maze[currentSelectedPosition.y]) throw new Error("Maze isn't loaded yet.");
     let tile = maze[currentSelectedPosition.y][currentSelectedPosition.x];
     if (!tile) throw new Error("Not a valid tile");
     if (tile.type === TileType.WALL) throw new Error("Cannot calculate distances from a wall");

@@ -230,7 +230,7 @@ function findPosition() {
     if (pattern.length < 3 || pattern[0].length < 3) {
         throw new Error("Not enough input to calculate a position.");
     }
-    if (maze.length < 1) {
+    if (!maze || maze.length < 1) {
         throw new Error("Maze not loaded yet.");
     }
     resetHighlights();

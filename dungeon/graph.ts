@@ -34,7 +34,7 @@ interface Vector2 {
 /*
 To speed up calculation times, using maps to store nodes and connections of those nodes.
 Indexed by a string in the format "(<x>,<y>)", describing the tile position inside the maze
-*/ 
+*/
 /** All relevant (Fountain, Boss, Campfire) nodes in the graph */
 let allCWNodes: Map<string, CWNode> = new Map<string, CWNode>();
 /** All relevant nodes including the path to the previous node (ultimately leading to the boss), filled by calculateDistanceToBoss */
@@ -74,6 +74,7 @@ function initCWNodes() {
 
 /** Calculates the shortest paths based on the node graph. */
 function calculatePathWithNodes(this: HTMLInputElement, event: Event) {
+    if (!maze || !maze.length) throw new Error("Maze isn't loaded yet.");
     resetPath();
     let treasureRun: boolean = this.id === "calculateTreasureRun";
     // are recalculations needed?
@@ -83,13 +84,13 @@ function calculatePathWithNodes(this: HTMLInputElement, event: Event) {
             allCWConnections.set(vectorToString(node.position), findAllConnections(node, settings.maxSteps));
         }
         previousStepLength = settings.maxSteps;
-        if(!treasureRun) {
+        if (!treasureRun) {
             calculateDistanceToBoss();
         }
         needsRecalculation = false;
     }
     // find the actual path
-    if(treasureRun) {
+    if (treasureRun) {
         findHighestTreasureRoute();
         findTreasureRoute();
     } else {
@@ -99,7 +100,7 @@ function calculatePathWithNodes(this: HTMLInputElement, event: Event) {
 
 /** Find all nodes that are in range of the given node */
 function findAllConnections(node: CWNode, maxSteps: number): CWConnection[] {
-    let newConnections: CWConnection[] = findConnectionsRecursive(node.position, maxSteps, [], 0, {monsters: 0, treasures: 0});
+    let newConnections: CWConnection[] = findConnectionsRecursive(node.position, maxSteps, [], 0, { monsters: 0, treasures: 0 });
 
     //remove first one because it connects to itself.
     if (newConnections[0].position.x === node.position.x && newConnections[0].position.y === node.position.y) {
@@ -221,12 +222,13 @@ function findPathFromNodes() {
         }
         position = <Vector2>node.previous;
         highlightStop(position);
-        drawPath(vectorArrayToTupleArray(node.pathToPrevious ?? []), {fat: true, color:currentPathColor, dashed});
+        drawPath(vectorArrayToTupleArray(node.pathToPrevious ?? []), { fat: true, color: currentPathColor, dashed });
     }
 }
 
 /** Finds and returns the closest Fountain, assuming the selected starting point is not a Fountain or Campfire, highlighting all the reachable fountains in the process. */
 function fixStartingPosition(startPosition: [number, number]): Vector2 {
+    if (!maze || !maze.length || !maze[startPosition[0]]) throw new Error("Maze isn't loaded yet.");
     if (startPosition[0] < 0 || startPosition[1] < 0) throw new Error("Invalid Start Position. Did you select one yet (double click)?");
     let type = maze[startPosition[1]][startPosition[0]].type;
     let position: Vector2;
@@ -257,7 +259,7 @@ function vectorToString(v: Vector2) {
 
 function stringToVector(s: string): Vector2 {
     let [x, y] = s.replace("(", "").replace(")", "").split(",");
-    return {x: Number(x), y: Number(y)};
+    return { x: Number(x), y: Number(y) };
 }
 
 function sortNodesByDistance(a: CWNode, b: CWNode) {
@@ -282,7 +284,7 @@ function findAndHighlightClosestFountainsAndBonfires(): CWConnection[] {
     let connections = findAllConnections({ position: { x: startPosition[0], y: startPosition[1] }, distance: Infinity, type: TileType.WALL, visited: false }, settings.maxSteps);
     currentPathColor = randomHSLA(0.4);
     for (let connection of connections) {
-        drawPath(vectorArrayToTupleArray(connection.path), {color: currentPathColor});
+        drawPath(vectorArrayToTupleArray(connection.path), { color: currentPathColor });
     }
     currentPathColor = randomHSLA();
     return connections;
