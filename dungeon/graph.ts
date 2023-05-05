@@ -133,20 +133,23 @@ function findConnectionsRecursive(position: Vector2, remainingSteps: number, pat
 
     let newContents: ConnectionContents = structuredClone(contents);
 
-    if (maze[position.y][position.x].type === TileType.MONSTER) {
-        currentPathCost += getTileWeight(TileType.MONSTER);
-        newContents.monsters++;
-    }
-    if (maze[position.y][position.x].type === TileType.TREASURE) {
-        newContents.treasures++;
-    }
-    if (maze[position.y][position.x].type === TileType.FOUNTAIN) {
-        let weight: number = currentPathCost + getTileWeight(TileType.FOUNTAIN);
-        newConnections.push({ path: newPath, position, weight, contents: newContents });
-    }
-    if (maze[position.y][position.x].type === TileType.BONFIRE) {
-        let weight: number = currentPathCost + getTileWeight(TileType.BONFIRE);
-        newConnections.push({ path: newPath, position, weight, contents: newContents });
+    let isDisabled: boolean = disabledTiles.has(vectorToString(position));
+    if(!isDisabled){
+        if (maze[position.y][position.x].type === TileType.MONSTER) {
+            currentPathCost += getTileWeight(TileType.MONSTER);
+            newContents.monsters++;
+        }
+        if (maze[position.y][position.x].type === TileType.TREASURE) {
+            newContents.treasures++;
+        }
+        if (maze[position.y][position.x].type === TileType.FOUNTAIN) {
+            let weight: number = currentPathCost + getTileWeight(TileType.FOUNTAIN);
+            newConnections.push({ path: newPath, position, weight, contents: newContents });
+        }
+        if (maze[position.y][position.x].type === TileType.BONFIRE) {
+            let weight: number = currentPathCost + getTileWeight(TileType.BONFIRE);
+            newConnections.push({ path: newPath, position, weight, contents: newContents });
+        }
     }
 
     newConnections.push(...findConnectionsRecursive({ x: position.x - 1, y: position.y }, remainingSteps - 1, newPath, currentPathCost, newContents));

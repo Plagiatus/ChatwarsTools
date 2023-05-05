@@ -155,17 +155,18 @@ function resetInfo(showCurrentPosition: boolean = true) {
     surroundingInfoCtx.fill(p);
 }
 
-let disabledTiles: Set<string> = new Set(); 
+let disabledTiles: Set<string> = new Set();
 function resetDisabled() {
     let ctx = canvasRenderingContexts.get("disabled")!;
     resetCanvas(ctx);
 
     let path: Path2D = new Path2D();
-    for(let pos of disabledTiles){
-        let {x, y} = stringToVector(pos);
+    for (let pos of disabledTiles) {
+        let { x, y } = stringToVector(pos);
         path.moveTo(x * rasterSize, y * rasterSize);
         path.lineTo((x + 1) * rasterSize, (y + 1) * rasterSize);
-
+        path.moveTo((x + 1) * rasterSize, y * rasterSize);
+        path.lineTo(x * rasterSize, (y + 1) * rasterSize);
     }
     ctx.strokeStyle = "rgba(255,0,0,0.5)";
     ctx.lineWidth = 3;
@@ -241,10 +242,13 @@ function showSurroundingInfo() {
     surroundingInfoRecursive(currentSelectedPosition, path, distances, settings.maxSteps);
 
     let surroundingInfoCtx = canvasRenderingContexts.get("surroundingInfo")!;
-    surroundingInfoCtx.strokeStyle = "rgba(0,0,0,0.5)";
+    surroundingInfoCtx.fillStyle = "rgba(0,0,0,0.9)";
+    surroundingInfoCtx.strokeStyle = "rgba(255,255,255,0.7)";
+    surroundingInfoCtx.lineWidth = 2;
     for (let pair of distances) {
         let pos = stringToVector(pair[0]);
         surroundingInfoCtx.strokeText(pair[1].toString(), pos.x * rasterSize + 2, (pos.y + 1) * rasterSize - 2, rasterSize);
+        surroundingInfoCtx.fillText(pair[1].toString(), pos.x * rasterSize + 2, (pos.y + 1) * rasterSize - 2, rasterSize);
     }
 }
 
@@ -274,10 +278,11 @@ function surroundingInfoRecursive(position: Vector2, currentPath: Vector2[], dis
 function toggleVisited(e: MouseEvent) {
     let position = getCanvasPosition(e);
     let stringPos = vectorToString(position);
-    if(disabledTiles.has(stringPos)){
+    if (disabledTiles.has(stringPos)) {
         disabledTiles.delete(stringPos);
     } else {
         disabledTiles.add(stringPos);
     }
+    needsRecalculation = true;
     resetDisabled();
 }
