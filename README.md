@@ -12,3 +12,5 @@ Dungeon Improvements ToDo:
 
 - mark consumables as used / defeated / disabled (esp. fountains, also monsters) and adjust algorithm accordingly
 - on mouse hover show info about path / segment / tile (length, monsters, torch useage, etc) (partially done)
+
+- make opacity on surrounding info a setting

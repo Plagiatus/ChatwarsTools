@@ -6,8 +6,9 @@ initCanvases();
 
 canvasWrapper.addEventListener("mousemove", showHoverInfo);
 canvasWrapper.addEventListener("mouseleave", hideHoverInfo);
-canvasWrapper.addEventListener("click", handleMouseClick);
+canvasWrapper.addEventListener("mousedown", handleMouseClick);
 canvasWrapper.addEventListener("dblclick", handleMouseDblClick);
+canvasWrapper.addEventListener("contextmenu", (e) => { e.preventDefault(); });
 
 document.getElementById("findPosition")?.addEventListener("click", findPosition);
 document.getElementById("resetMaze")?.addEventListener("click", resetMaze);
@@ -16,6 +17,7 @@ let currentSelectedPosition: Vector2 = { x: -1, y: -1 };
 
 function initCanvases() {
     canvasRenderingContexts.set("bg", document.createElement("canvas").getContext("2d")!);
+    canvasRenderingContexts.set("disabled", document.createElement("canvas").getContext("2d")!);
     canvasRenderingContexts.set("highlight", document.createElement("canvas").getContext("2d")!);
     canvasRenderingContexts.set("positionFinder", document.createElement("canvas").getContext("2d")!);
     canvasRenderingContexts.set("path", document.createElement("canvas").getContext("2d")!);
@@ -49,9 +51,17 @@ function hideHoverInfo() {
 }
 
 function handleMouseClick(e: MouseEvent) {
-    currentSelectedPosition = getCanvasPosition(e);
-    resetInfo();
-    showSurroundingInfo();
+    e.preventDefault();
+    switch (e.button) {
+        case 0:
+            currentSelectedPosition = getCanvasPosition(e);
+            resetInfo();
+            showSurroundingInfo();
+            break;
+        case 2:
+            toggleVisited(e);
+            break;
+    }
 }
 
 function getCanvasPosition(e: MouseEvent): Vector2 {
@@ -143,6 +153,23 @@ function resetInfo(showCurrentPosition: boolean = true) {
     }
     surroundingInfoCtx.stroke(p);
     surroundingInfoCtx.fill(p);
+}
+
+let disabledTiles: Set<string> = new Set(); 
+function resetDisabled() {
+    let ctx = canvasRenderingContexts.get("disabled")!;
+    resetCanvas(ctx);
+
+    let path: Path2D = new Path2D();
+    for(let pos of disabledTiles){
+        let {x, y} = stringToVector(pos);
+        path.moveTo(x * rasterSize, y * rasterSize);
+        path.lineTo((x + 1) * rasterSize, (y + 1) * rasterSize);
+
+    }
+    ctx.strokeStyle = "rgba(255,0,0,0.5)";
+    ctx.lineWidth = 3;
+    ctx.stroke(path);
 }
 
 
@@ -242,4 +269,15 @@ function surroundingInfoRecursive(position: Vector2, currentPath: Vector2[], dis
     surroundingInfoRecursive({ x: position.x + 1, y: position.y }, newPath, distances, remainingSteps - 1, currentSteps + 1);
     surroundingInfoRecursive({ x: position.x, y: position.y - 1 }, newPath, distances, remainingSteps - 1, currentSteps + 1);
     surroundingInfoRecursive({ x: position.x, y: position.y + 1 }, newPath, distances, remainingSteps - 1, currentSteps + 1);
+}
+
+function toggleVisited(e: MouseEvent) {
+    let position = getCanvasPosition(e);
+    let stringPos = vectorToString(position);
+    if(disabledTiles.has(stringPos)){
+        disabledTiles.delete(stringPos);
+    } else {
+        disabledTiles.add(stringPos);
+    }
+    resetDisabled();
 }
