@@ -174,7 +174,7 @@ function resetDisabled() {
         path.moveTo((x + 1) * rasterSize, y * rasterSize);
         path.lineTo(x * rasterSize, (y + 1) * rasterSize);
     }
-    ctx.strokeStyle = "rgba(255,0,0,0.5)";
+    ctx.strokeStyle = "rgba(255,0,0,0.7)";
     ctx.lineWidth = 3;
     ctx.stroke(path);
 }

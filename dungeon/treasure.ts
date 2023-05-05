@@ -1,5 +1,6 @@
 
 document.getElementById("calculateTreasureRun")?.addEventListener("click", calculatePathWithNodes);
+document.getElementById("disableCurrentRoute")?.addEventListener("click", disableCurrentRoute);
 
 // interface TreasureRoute {
 //     nodes: CWNode[],
@@ -107,7 +108,12 @@ function getConnectionTreasureWeight(node: CWConnection): number {
         node.contents.treasures * settings.treasure.multipliers.treasure;
 }
 
+let currentTreasurePath: Vector2[];
+let currentTreasurePathNodes: CWNode[];
 function findTreasureRoute() {
+    currentTreasurePathNodes = [];
+    currentTreasurePath = [];
+
     let startPositionVector = fixStartingPosition(startPosition)
     let startNode = <CWNode>allCWNodesWithPath.get(vectorToString(startPositionVector));
 
@@ -125,6 +131,7 @@ function findTreasureRoute() {
     let atStartPosition: boolean = false;
     while (!atStartPosition) {
         let node: CWNode = <CWNode>allCWNodesWithTreasurePath.get(vectorToString(position));
+        currentTreasurePathNodes.push(node);
         fullPath.push(...(node.pathToPrevious ?? []));
         if (vectorEquals(node.position, startPositionVector)) {
             atStartPosition = true;
@@ -135,4 +142,22 @@ function findTreasureRoute() {
         drawPath(vectorArrayToTupleArray(node.pathToPrevious ?? []), { color: currentPathColor, directional: true });
         currentPathColor = randomHSLA();
     }
+    currentTreasurePath = fullPath;
+}
+
+function disableCurrentRoute(){
+    if(!currentTreasurePath || !currentTreasurePath.length) return;
+    for(let pos of currentTreasurePath) {
+        let tile = maze[pos.y][pos.x];
+        if(tile.type === TileType.MONSTER || tile.type === TileType.TREASURE){
+            disabledTiles.add(vectorToString(pos));
+        }
+    }
+    for(let node of currentTreasurePathNodes) {
+        if(node.type === TileType.FOUNTAIN) {
+            disabledTiles.add(vectorToString(node.position));
+        }
+    }
+    resetDisabled();
+    needsRecalculation = true;
 }
