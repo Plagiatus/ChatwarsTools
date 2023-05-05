@@ -68,6 +68,7 @@ function loadImage() {
         for (let ctx of canvasRenderingContexts.values()) {
             ctx.canvas.width = img.width;
             ctx.canvas.height = img.height;
+            ctx.canvas.hidden = false;
         }
         canvasRenderingContexts.get("bg")?.drawImage(img, 0, 0);
         loadMaze(img.width, img.height);

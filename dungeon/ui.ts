@@ -24,6 +24,8 @@ function initCanvases() {
 
     for (let ctx of canvasRenderingContexts.values()) {
         canvasWrapper.appendChild(ctx.canvas);
+        ctx.canvas.width = ctx.canvas.height = 0;
+        ctx.canvas.hidden = true;
     }
 }
 
