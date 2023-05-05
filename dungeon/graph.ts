@@ -265,6 +265,10 @@ function stringToVector(s: string): Vector2 {
     return { x: Number(x), y: Number(y) };
 }
 
+function vectorEquals(a: Vector2, b: Vector2){
+    return a.x === b.x && a.y === b.y;
+}
+
 function sortNodesByDistance(a: CWNode, b: CWNode) {
     return a.distance - b.distance;
 }

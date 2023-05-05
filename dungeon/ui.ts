@@ -54,9 +54,15 @@ function handleMouseClick(e: MouseEvent) {
     e.preventDefault();
     switch (e.button) {
         case 0:
-            currentSelectedPosition = getCanvasPosition(e);
-            resetInfo();
-            showSurroundingInfo();
+            let newPosition = getCanvasPosition(e);
+            if(vectorEquals(newPosition, currentSelectedPosition)){
+                resetInfo(false);
+                currentSelectedPosition.x = -1;
+            } else {
+                currentSelectedPosition = newPosition;
+                resetInfo();
+                showSurroundingInfo();
+            }
             break;
         case 2:
             toggleVisited(e);
