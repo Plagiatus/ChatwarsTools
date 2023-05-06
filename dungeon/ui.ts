@@ -38,10 +38,11 @@ function showHoverInfo(e: MouseEvent) {
     let { x, y } = getCanvasPosition(e);
     if (y > maze.length - 1 || x > maze[y].length - 1) return hideHoverInfo();
 
-    let orientation: number = Math.sign((canvasWrapper.getBoundingClientRect().width / 2) - e.clientX);
+    let wrapperRect = canvasWrapper.getBoundingClientRect();
+    let orientation: number = Math.sign((wrapperRect.width / 2) - e.clientX);
 
-    canvasOverlay.style.top = (y - 2) * rasterSize + "px";
-    if(orientation > 0) {
+    canvasOverlay.style.top = Math.min(wrapperRect.height - canvasOverlay.getBoundingClientRect().height - 20, Math.max(0, (y - 2) * rasterSize)) + "px";
+    if (orientation > 0) {
         canvasOverlay.style.left = (x + 2) * rasterSize + "px";
     } else {
         canvasOverlay.style.left = (x - 1) * rasterSize - 100 + "px";
@@ -51,8 +52,8 @@ function showHoverInfo(e: MouseEvent) {
     let yPos = <HTMLSpanElement>canvasOverlay.querySelector("#yPos");
     xPos.innerText = x.toString();
     yPos.innerText = y.toString();
-    // let tile = <HTMLSpanElement>canvasOverlay.querySelector("#tileType");
-    // tile.innerText = "";
+    let tile = <HTMLSpanElement>canvasOverlay.querySelector("#tileType");
+    tile.innerText = tileTypeToString(maze[y][x].type);
 }
 
 function hideHoverInfo() {
@@ -313,7 +314,7 @@ function saveDisabledToStorage() {
 
 function loadDisabledFromStorage() {
     let newDisabled: string[] = (localStorage.getItem("disabled") ?? "").split(";");
-    for(let d of newDisabled) {
+    for (let d of newDisabled) {
         disabledTiles.add(d);
     }
     resetDisabled();
@@ -322,8 +323,20 @@ function loadDisabledFromStorage() {
 
 function showDisabledOutput(message: string) {
     disabledSaveOutput.innerText = message;
-    if(disabledStorageInfoTimeout) {
+    if (disabledStorageInfoTimeout) {
         clearTimeout(disabledStorageInfoTimeout);
     }
-    disabledStorageInfoTimeout = setTimeout(()=>{disabledSaveOutput.innerText = ""}, 1000);
+    disabledStorageInfoTimeout = setTimeout(() => { disabledSaveOutput.innerText = "" }, 1000);
+}
+
+function tileTypeToString(type: TileType): string {
+    if (type === TileType.BONFIRE) return "Bonfire";
+    if (type === TileType.BOSS) return "Boss";
+    if (type === TileType.FAMOUSPLACE) return "Famous Place";
+    if (type === TileType.FOUNTAIN) return "Fountain";
+    if (type === TileType.MONSTER) return "Monster";
+    if (type === TileType.PATH) return "Path";
+    if (type === TileType.TREASURE) return "Treasure";
+    if (type === TileType.WALL) return "Wall";
+    return "unknown";
 }
