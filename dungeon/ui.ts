@@ -34,9 +34,16 @@ function initCanvases() {
 function showHoverInfo(e: MouseEvent) {
     canvasOverlay.classList.remove("hidden");
     let { x, y } = getCanvasPosition(e);
+    if (y > maze.length - 1 || x > maze[y].length - 1) return hideHoverInfo();
+
+    let orientation: number = Math.sign((canvasWrapper.getBoundingClientRect().width / 2) - e.clientX);
 
     canvasOverlay.style.top = (y - 2) * rasterSize + "px";
-    canvasOverlay.style.left = (x + 2) * rasterSize + "px";
+    if(orientation > 0) {
+        canvasOverlay.style.left = (x + 2) * rasterSize + "px";
+    } else {
+        canvasOverlay.style.left = (x - 1) * rasterSize - 100 + "px";
+    }
 
     let xPos = <HTMLSpanElement>canvasOverlay.querySelector("#xPos");
     let yPos = <HTMLSpanElement>canvasOverlay.querySelector("#yPos");
@@ -238,7 +245,8 @@ function drawPath(path: [number, number][], options?: PathDrawingOptions) {
 }
 
 function showSurroundingInfo() {
-    if (!maze || !maze.length || !maze[currentSelectedPosition.y]) throw new Error("Maze isn't loaded yet.");
+    if (!maze || !maze.length) throw new Error("Maze isn't loaded yet.");
+    if (!maze[currentSelectedPosition.y] || !maze[currentSelectedPosition.x]) return;
     let tile = maze[currentSelectedPosition.y][currentSelectedPosition.x];
     if (!tile) throw new Error("Not a valid tile");
     if (tile.type === TileType.WALL) throw new Error("Cannot calculate distances from a wall");
