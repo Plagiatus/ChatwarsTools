@@ -12,6 +12,8 @@ canvasWrapper.addEventListener("contextmenu", (e) => { e.preventDefault(); });
 
 document.getElementById("findPosition")?.addEventListener("click", findPosition);
 document.getElementById("resetMaze")?.addEventListener("click", resetMaze);
+document.getElementById("disabledSave")?.addEventListener("click", saveDisabledToStorage);
+document.getElementById("disabledLoad")?.addEventListener("click", loadDisabledFromStorage);
 
 let currentSelectedPosition: Vector2 = { x: -1, y: -1 };
 
@@ -125,6 +127,7 @@ function resetMaze() {
     for (let ctx of canvasRenderingContexts.values()) {
         ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
     }
+    disabledTiles = new Set();
 
     canvasRenderingContexts.get("bg")!.putImageData(imgData, 0, 0);
     resetHighlights();
@@ -299,4 +302,28 @@ function toggleVisited(e: MouseEvent) {
     }
     needsRecalculation = true;
     resetDisabled();
+}
+
+let disabledStorageInfoTimeout: number;
+const disabledSaveOutput: HTMLSpanElement = document.getElementById("disabledSaveOutput")!;
+function saveDisabledToStorage() {
+    localStorage.setItem("disabled", Array.from(disabledTiles).join(";"));
+    showDisabledOutput("Saved.")
+}
+
+function loadDisabledFromStorage() {
+    let newDisabled: string[] = (localStorage.getItem("disabled") ?? "").split(";");
+    for(let d of newDisabled) {
+        disabledTiles.add(d);
+    }
+    resetDisabled();
+    showDisabledOutput("Loaded.")
+}
+
+function showDisabledOutput(message: string) {
+    disabledSaveOutput.innerText = message;
+    if(disabledStorageInfoTimeout) {
+        clearTimeout(disabledStorageInfoTimeout);
+    }
+    disabledStorageInfoTimeout = setTimeout(()=>{disabledSaveOutput.innerText = ""}, 1000);
 }
