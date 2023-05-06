@@ -101,6 +101,7 @@ function calculatePathWithNodes(this: HTMLInputElement, event: Event) {
 /** Find all nodes that are in range of the given node */
 function findAllConnections(node: CWNode, maxSteps: number): CWConnection[] {
     let newConnections: CWConnection[] = findConnectionsRecursive(node.position, maxSteps, [], 0, { monsters: 0, treasures: 0 });
+    if(newConnections.length === 0 || !node) return [];
 
     //remove first one because it connects to itself.
     if (vectorEquals(newConnections[0].position, node.position)) {
