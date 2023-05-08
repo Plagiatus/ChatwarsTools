@@ -14,6 +14,7 @@ document.getElementById("findPosition")?.addEventListener("click", findPosition)
 document.getElementById("resetMaze")?.addEventListener("click", resetMaze);
 document.getElementById("disabledSave")?.addEventListener("click", saveDisabledToStorage);
 document.getElementById("disabledLoad")?.addEventListener("click", loadDisabledFromStorage);
+document.getElementById("exportImage")?.addEventListener("click", exportImage);
 
 let currentSelectedPosition: Vector2 = { x: -1, y: -1 };
 
@@ -339,4 +340,24 @@ function tileTypeToString(type: TileType): string {
     if (type === TileType.TREASURE) return "Treasure";
     if (type === TileType.WALL) return "Wall";
     return "unknown";
+}
+
+function exportImage() {
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d")!;
+    const bgCtx = canvasRenderingContexts.get("bg")!;
+    canvas.width = bgCtx.canvas.width;
+    canvas.height = bgCtx.canvas.height;
+
+    for (let c of canvasRenderingContexts.values()) {
+        ctx.drawImage(c.canvas, 0, 0, canvas.height, canvas.width);
+    }
+
+    const link = document.createElement("a");
+    link.target = "_blank";
+    link.href = canvas.toDataURL();
+    link.click();
+
+    link.remove();
+    canvas.remove();
 }
