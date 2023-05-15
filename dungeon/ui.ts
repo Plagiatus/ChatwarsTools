@@ -46,7 +46,7 @@ function initCanvases() {
 function showHoverInfo(e: MouseEvent) {
     canvasOverlay.classList.remove("hidden");
     let { x, y } = getCanvasPosition(e);
-    if (y > maze.length - 1 || x > maze[y].length - 1) return hideHoverInfo();
+    if (!maze || y > maze.length - 1 || !maze[y] || x > maze[y].length - 1) return hideHoverInfo();
 
     let wrapperRect = canvasWrapper.getBoundingClientRect();
     let orientation: number = Math.sign((wrapperRect.width / 2) - e.clientX);
@@ -63,7 +63,7 @@ function showHoverInfo(e: MouseEvent) {
     xPos.innerText = x.toString();
     yPos.innerText = y.toString();
     let tile = <HTMLSpanElement>canvasOverlay.querySelector("#tileType");
-    tile.innerText = tileTypeToString(maze[y][x].type);
+    tile.innerText = tileTypeToString(maze[y][x]?.type ?? "");
 
     let { paths, nodes } = findActivePathsAtThisPosition({ x, y });
     // showHoveredPathInfo(paths, nodes);
