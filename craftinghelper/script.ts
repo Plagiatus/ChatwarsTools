@@ -7,7 +7,7 @@ interface Item {
 
 interface Ingredient {
 	id: string,
-	amount: number
+	amount: number,
 }
 
 interface StockItem extends Ingredient {
@@ -23,11 +23,12 @@ interface OfficialItem {
 	id: string,
 	name: string,
 	craftMana: number,
-	recipe: assoArray
+	recipe: OfficialCraftItem[],
 }
 
-interface assoArray {
-	[name: string]: string
+interface OfficialCraftItem {
+	name: string,
+	qty: string,
 }
 
 
@@ -40,14 +41,20 @@ let itemsToCraftCombinedStorage: CalculateItem[] = [];
 
 async function loadItems(): Promise<void> {
 	try {
-		let response: Response = await fetch("https://raw.githubusercontent.com/AVee/cw_wiki_sync/master/data/resources.json");
-		let json: OfficialItem[] = (<any>await response.json()).items;
+		let response: Response = await fetch("https://raw.githubusercontent.com/AVee/cw_wiki_sync/master/data/resources_v2.json");
+		let json: OfficialItem[] = (<any>await response.json()).items.sort(sortByDate);
 		items = json;
 	} catch (error) {
 		alert("Sorry, something went wrong. Is your internet working?\n\n" + error);
 	}
 
 	Array.from(document.getElementsByTagName("textarea")).forEach(el => { el.dispatchEvent(new Event("input")) });
+}
+
+function sortByDate(a: any, b: any): number {
+	const aDate = new Date(a.lastModified);
+	const bDate = new Date(b.lastModified);
+	return bDate.getTime() - aDate.getTime();
 }
 
 loadItems();
@@ -258,11 +265,11 @@ function calculateNeededItems(neededItems: CalculateItem[], bsWonders: number) {
 	do {
 		let currentItem: CalculateItem = <CalculateItem>neededItems.pop();
 		if (currentItem.toGuild) {
-			for (let i in currentItem.recipe) {
-				let amountNeeded = Math.ceil(parseInt(currentItem.recipe[i]) * currentItem.amount);
-				let item: OfficialItem = <OfficialItem>getItemInformation(i);
+			for (let ingredient of currentItem.recipe) {
+				let amountNeeded = Math.ceil(parseInt(ingredient.qty) * currentItem.amount);
+				let item: OfficialItem = <OfficialItem>getItemInformation(ingredient.name);
 				if (!item) {
-					throw Error(`Item not found: ${i}`);
+					throw Error(`Item not found: ${ingredient.name}`);
 				};
 
 				let guilditem: StockItem | undefined = availableGuildItems.find(el => el.id == item.id && el.active);
@@ -303,11 +310,11 @@ function calculateNeededItems(neededItems: CalculateItem[], bsWonders: number) {
 			}
 			continue;
 		}
-		for (let i in currentItem.recipe) {
-			let amountNeeded = Math.ceil(parseInt(currentItem.recipe[i]) * currentItem.amount * amountWithBSWDeducted);
-			let item: OfficialItem = <OfficialItem>getItemInformation(i);
+		for (let ingredient of currentItem.recipe) {
+			let amountNeeded = Math.ceil(parseInt(ingredient.qty) * currentItem.amount * amountWithBSWDeducted);
+			let item: OfficialItem = <OfficialItem>getItemInformation(ingredient.name);
 			if (!item) {
-				throw Error(`Item not found: ${i}`);
+				throw Error(`Item not found: ${ingredient.name}`);
 			};
 			let playeritem: StockItem | undefined = availablePlayerItems.find(el => el.id == item.id && el.active);
 			if (playeritem) {
