@@ -1,5 +1,6 @@
 const canvasOverlay: HTMLDivElement = <HTMLDivElement>document.getElementById("canvas-hover-info");
 const canvasWrapper: HTMLDivElement = <HTMLDivElement>document.getElementById("canvas-wrapper");
+const canvasContextMenu: HTMLDivElement = <HTMLDivElement>document.getElementById("canvas-context-menu");
 
 const canvasRenderingContexts: Map<string, CanvasRenderingContext2D> = new Map();
 initCanvases();
@@ -8,13 +9,20 @@ canvasWrapper.addEventListener("mousemove", showHoverInfo);
 canvasWrapper.addEventListener("mouseleave", hideHoverInfo);
 canvasWrapper.addEventListener("mousedown", handleMouseClick);
 canvasWrapper.addEventListener("dblclick", handleMouseDblClick);
-canvasWrapper.addEventListener("contextmenu", (e) => { e.preventDefault(); });
+canvasWrapper.addEventListener("contextmenu", (e) => { e.preventDefault(); e.stopPropagation(); });
 
 document.getElementById("findPosition")?.addEventListener("click", findPosition);
 document.getElementById("resetMaze")?.addEventListener("click", resetMaze);
 document.getElementById("disabledSave")?.addEventListener("click", saveDisabledToStorage);
 document.getElementById("disabledLoad")?.addEventListener("click", loadDisabledFromStorage);
 document.getElementById("exportImage")?.addEventListener("click", exportImage);
+
+//custom context menu
+document.body.addEventListener("click", hideContextMenu);
+document.body.addEventListener("contextmenu", hideContextMenu);
+canvasContextMenu.addEventListener("click", canvasContextMenuClick);
+canvasContextMenu.addEventListener("mousedown", (e) => { e.stopPropagation(); });
+canvasContextMenu.addEventListener("mousemove", (e) => { hideHoverInfo(); e.stopPropagation(); });
 
 let currentSelectedPosition: Vector2 = { x: -1, y: -1 };
 
@@ -49,14 +57,9 @@ function showHoverInfo(e: MouseEvent) {
     if (!maze || y > maze.length - 1 || !maze[y] || x > maze[y].length - 1) return hideHoverInfo();
 
     let wrapperRect = canvasWrapper.getBoundingClientRect();
-    let orientation: number = Math.sign((wrapperRect.width / 2) - e.clientX);
 
-    canvasOverlay.style.top = Math.min(wrapperRect.height - canvasOverlay.getBoundingClientRect().height - 20, Math.max(0, (y - 2) * rasterSize)) + "px";
-    if (orientation > 0) {
-        canvasOverlay.style.left = (x + 2) * rasterSize + "px";
-    } else {
-        canvasOverlay.style.left = (x - 1) * rasterSize - 100 + "px";
-    }
+    canvasOverlay.style.top = calculateTopPositionOfOverlay(wrapperRect, canvasOverlay, y) + "px";
+    canvasOverlay.style.left = calculateLeftPositionOfOverlay(wrapperRect, canvasOverlay, e.clientX, x) + "px";
 
     let xPos = <HTMLSpanElement>canvasOverlay.querySelector("#xPos");
     let yPos = <HTMLSpanElement>canvasOverlay.querySelector("#yPos");
@@ -69,8 +72,20 @@ function showHoverInfo(e: MouseEvent) {
     // showHoveredPathInfo(paths, nodes);
     const pathWrapper = <HTMLDivElement>canvasOverlay.querySelector("#paths");
     pathWrapper.innerHTML = "";
-    for(let path of paths){
+    for (let path of paths) {
         pathWrapper.innerHTML += `<span class="path-color" style="background: ${path.color};"></span> <span class="path-number">${path.id}</span><br>`
+    }
+}
+
+function calculateTopPositionOfOverlay(wrapperRect: DOMRect, element: HTMLElement, yPositionOnCanvas: number): number {
+    return Math.min(wrapperRect.height - element.getBoundingClientRect().height - 20, Math.max(0, (yPositionOnCanvas - 2) * rasterSize));
+}
+function calculateLeftPositionOfOverlay(wrapperRect: DOMRect, element: HTMLElement, clientPosX: number, xPositionOnCanvas: number): number {
+    let orientation: number = Math.sign((wrapperRect.width / 2) - clientPosX);
+    if (orientation > 0) {
+        return (xPositionOnCanvas + 2) * rasterSize;
+    } else {
+        return (xPositionOnCanvas - 1) * rasterSize - element.getBoundingClientRect().width;
     }
 }
 
@@ -93,7 +108,7 @@ function handleMouseClick(e: MouseEvent) {
             }
             break;
         case 2:
-            toggleVisited(e);
+            handleRightClick(e);
             break;
     }
 }
@@ -311,8 +326,18 @@ function surroundingInfoRecursive(position: Vector2, currentPath: Vector2[], dis
     surroundingInfoRecursive({ x: position.x, y: position.y + 1 }, newPath, distances, remainingSteps - 1, currentSteps + 1);
 }
 
-function toggleVisited(e: MouseEvent) {
+function handleRightClick(e: MouseEvent) {
+    e.stopPropagation();
+    hideContextMenu();
     let position = getCanvasPosition(e);
+    let tile = maze?.[position.y]?.[position.x];
+    if (!tile) return;
+    if (tile.type === TileType.BONFIRE) {
+        hideHoverInfo();
+        setupContextMenuForBonfire(e, position);
+        return;
+    }
+
     let stringPos = vectorToString(position);
     if (disabledTiles.has(stringPos)) {
         disabledTiles.delete(stringPos);
@@ -405,5 +430,45 @@ function showHoveredPathInfo(paths: PathWithColor[], nodes: CWNode[]) {
         for (let tile of path.path) {
             ctx.fillRect(tile.x * rasterSize, tile.y * rasterSize, rasterSize, rasterSize);
         }
+    }
+}
+
+
+let campfireCodes: Map<string, string> = new Map();
+function canvasContextMenuClick(e: MouseEvent) {
+    e.stopPropagation();
+    console.log(e);
+}
+
+function hideContextMenu() {
+    canvasContextMenu.classList.add("hidden");
+    canvasContextMenu.innerHTML = canvasContextMenu.innerHTML;
+}
+
+function setupContextMenuForBonfire(e: MouseEvent, position: Vector2){
+    canvasContextMenu.classList.remove("hidden");
+    canvasContextMenu.style.top = calculateTopPositionOfOverlay(canvasWrapper.getBoundingClientRect(), canvasContextMenu, position.y) + "px";
+    canvasContextMenu.style.left = calculateLeftPositionOfOverlay(canvasWrapper.getBoundingClientRect(), canvasContextMenu, e.clientX, position.x) + "px";
+
+    const bonfireCodeInput = <HTMLInputElement>canvasContextMenu.querySelector("#bonfire-code");
+    bonfireCodeInput.value = campfireCodes.get(vectorToString(position)) ?? "";
+    bonfireCodeInput.addEventListener("input", updateCode);
+
+    const disabledInput = <HTMLInputElement>canvasContextMenu.querySelector("#context-menu-disable");
+    disabledInput.checked = disabledTiles.has(vectorToString(position));
+    disabledInput.addEventListener("input", updateDisabled);
+
+    function updateDisabled(){
+        let stringPos = vectorToString(position);
+        if (disabledInput.checked) {
+            disabledTiles.add(stringPos);
+        } else {
+            disabledTiles.delete(stringPos);
+        }
+        needsRecalculation = true;
+        resetDisabled();
+    }
+    function updateCode(){
+        campfireCodes.set(vectorToString(position), bonfireCodeInput.value);
     }
 }
