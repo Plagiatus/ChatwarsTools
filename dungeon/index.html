@@ -152,6 +152,7 @@
         <div id="canvas-hover-info" class="hidden border rounded text-bg-light p-1">
             <span>x: <span id="xPos">0</span> y: <span id="yPos">0</span></span><br>
             <span><span id="tileType">Wall</span></span>
+            <div id="paths"></div>
         </div>
     </div>
     <div id="notifications" class="toast-container position-fixed bottom-0 end-0 m-2"></div>
@@ -205,6 +206,11 @@
 
     .toast-timer-bar {
         animation: timer-bar 7s linear forwards;
+    }
+    .path-color {
+        width: 1em;
+        height: 1em;
+        display: inline-block;
     }
     @keyframes timer-bar {
         from {width: 100%}

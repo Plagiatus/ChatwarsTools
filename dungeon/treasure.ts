@@ -113,6 +113,8 @@ let currentTreasurePathNodes: CWNode[];
 function findTreasureRoute() {
     currentTreasurePathNodes = [];
     currentTreasurePath = [];
+    currentlyDisplayedPaths = [];
+    currentlyDisplayedPathNodes = [];
 
     let startPositionVector = fixStartingPosition(startPosition)
     let startNode = <CWNode>allCWNodesWithPath.get(vectorToString(startPositionVector));
@@ -129,10 +131,13 @@ function findTreasureRoute() {
 
     let fullPath: Vector2[] = [];
     let atStartPosition: boolean = false;
+    let pathId: number = 0;
     while (!atStartPosition) {
         let node: CWNode = <CWNode>allCWNodesWithTreasurePath.get(vectorToString(position));
         currentTreasurePathNodes.push(node);
+        currentlyDisplayedPathNodes.push(node);
         fullPath.push(...(node.pathToPrevious ?? []));
+        currentlyDisplayedPaths.push({path: node.pathToPrevious ?? [], color: currentPathColor, id: ++pathId});
         if (vectorEquals(node.position, startPositionVector)) {
             atStartPosition = true;
             break;
@@ -143,18 +148,23 @@ function findTreasureRoute() {
         currentPathColor = randomHSLA();
     }
     currentTreasurePath = fullPath;
+    currentlyDisplayedPathNodes.reverse();
+    currentlyDisplayedPaths.reverse();
+    for(let path of currentlyDisplayedPaths) {
+        path.id = currentlyDisplayedPaths.length - path.id;
+    }
 }
 
-function disableCurrentRoute(){
-    if(!currentTreasurePath || !currentTreasurePath.length) return;
-    for(let pos of currentTreasurePath) {
+function disableCurrentRoute() {
+    if (!currentTreasurePath || !currentTreasurePath.length) return;
+    for (let pos of currentTreasurePath) {
         let tile = maze[pos.y][pos.x];
-        if(tile.type === TileType.MONSTER || tile.type === TileType.TREASURE){
+        if (tile.type === TileType.MONSTER || tile.type === TileType.TREASURE) {
             disabledTiles.add(vectorToString(pos));
         }
     }
-    for(let node of currentTreasurePathNodes) {
-        if(node.type === TileType.FOUNTAIN) {
+    for (let node of currentTreasurePathNodes) {
+        if (node.type === TileType.FOUNTAIN) {
             disabledTiles.add(vectorToString(node.position));
         }
     }

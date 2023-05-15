@@ -18,6 +18,15 @@ document.getElementById("exportImage")?.addEventListener("click", exportImage);
 
 let currentSelectedPosition: Vector2 = { x: -1, y: -1 };
 
+let currentlyDisplayedPaths: PathWithColor[] = [];
+let currentlyDisplayedPathNodes: CWNode[] = [];
+
+interface PathWithColor {
+    path: Vector2[],
+    color: string,
+    id: number,
+}
+
 function initCanvases() {
     canvasRenderingContexts.set("bg", document.createElement("canvas").getContext("2d")!);
     canvasRenderingContexts.set("disabled", document.createElement("canvas").getContext("2d")!);
@@ -55,6 +64,14 @@ function showHoverInfo(e: MouseEvent) {
     yPos.innerText = y.toString();
     let tile = <HTMLSpanElement>canvasOverlay.querySelector("#tileType");
     tile.innerText = tileTypeToString(maze[y][x].type);
+
+    let { paths, nodes } = findActivePathsAtThisPosition({ x, y });
+    // showHoveredPathInfo(paths, nodes);
+    const pathWrapper = <HTMLDivElement>canvasOverlay.querySelector("#paths");
+    pathWrapper.innerHTML = "";
+    for(let path of paths){
+        pathWrapper.innerHTML += `<span class="path-color" style="background: ${path.color};"></span> <span class="path-number">${path.id}</span><br>`
+    }
 }
 
 function hideHoverInfo() {
@@ -360,4 +377,33 @@ function exportImage() {
 
     link.remove();
     canvas.remove();
+}
+
+function findActivePathsAtThisPosition(position: Vector2): { paths: PathWithColor[], nodes: CWNode[] } {
+    let paths: PathWithColor[] = [];
+    let nodes: CWNode[] = [];
+
+    for (let i = 0; i < currentlyDisplayedPaths.length; i++) {
+        let path = currentlyDisplayedPaths[i];
+        for (let pos of path.path) {
+            if (vectorEquals(pos, position)) {
+                paths.push(path);
+                nodes.push(currentlyDisplayedPathNodes[i]);
+            }
+        }
+    }
+
+    return { paths, nodes };
+}
+
+function showHoveredPathInfo(paths: PathWithColor[], nodes: CWNode[]) {
+    let ctx = canvasRenderingContexts.get("interactable");
+    if (!ctx) return;
+    resetCanvas(ctx);
+    ctx.fillStyle = "black";
+    for (let path of paths) {
+        for (let tile of path.path) {
+            ctx.fillRect(tile.x * rasterSize, tile.y * rasterSize, rasterSize, rasterSize);
+        }
+    }
 }
