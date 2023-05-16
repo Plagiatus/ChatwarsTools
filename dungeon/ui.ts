@@ -13,8 +13,6 @@ canvasWrapper.addEventListener("contextmenu", (e) => { e.preventDefault(); e.sto
 
 document.getElementById("findPosition")?.addEventListener("click", findPosition);
 document.getElementById("resetMaze")?.addEventListener("click", resetMaze);
-document.getElementById("disabledSave")?.addEventListener("click", saveDisabledToStorage);
-document.getElementById("disabledLoad")?.addEventListener("click", loadDisabledFromStorage);
 document.getElementById("exportImage")?.addEventListener("click", exportImage);
 
 //custom context menu
@@ -161,7 +159,8 @@ function resetMaze() {
     for (let ctx of canvasRenderingContexts.values()) {
         ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
     }
-    disabledTiles = new Set();
+    persistent.disabledTiles = new Set();
+    savePersistentDataToStorage();
 
     canvasRenderingContexts.get("bg")!.putImageData(imgData, 0, 0);
     resetHighlights();
@@ -205,13 +204,12 @@ function resetInfo(showCurrentPosition: boolean = true) {
     surroundingInfoCtx.fill(p);
 }
 
-let disabledTiles: Set<string> = new Set();
 function resetDisabled() {
     let ctx = canvasRenderingContexts.get("disabled")!;
     resetCanvas(ctx);
 
     let path: Path2D = new Path2D();
-    for (let pos of disabledTiles) {
+    for (let pos of persistent.disabledTiles) {
         let { x, y } = stringToVector(pos);
         path.moveTo(x * rasterSize, y * rasterSize);
         path.lineTo((x + 1) * rasterSize, (y + 1) * rasterSize);
@@ -339,37 +337,14 @@ function handleRightClick(e: MouseEvent) {
     }
 
     let stringPos = vectorToString(position);
-    if (disabledTiles.has(stringPos)) {
-        disabledTiles.delete(stringPos);
+    if (persistent.disabledTiles.has(stringPos)) {
+        persistent.disabledTiles.delete(stringPos);
     } else {
-        disabledTiles.add(stringPos);
+        persistent.disabledTiles.add(stringPos);
     }
     needsRecalculation = true;
+    savePersistentDataToStorage();
     resetDisabled();
-}
-
-let disabledStorageInfoTimeout: number;
-const disabledSaveOutput: HTMLSpanElement = document.getElementById("disabledSaveOutput")!;
-function saveDisabledToStorage() {
-    localStorage.setItem("disabled", Array.from(disabledTiles).join(";"));
-    showDisabledOutput("Saved.")
-}
-
-function loadDisabledFromStorage() {
-    let newDisabled: string[] = (localStorage.getItem("disabled") ?? "").split(";");
-    for (let d of newDisabled) {
-        disabledTiles.add(d);
-    }
-    resetDisabled();
-    showDisabledOutput("Loaded.")
-}
-
-function showDisabledOutput(message: string) {
-    disabledSaveOutput.innerText = message;
-    if (disabledStorageInfoTimeout) {
-        clearTimeout(disabledStorageInfoTimeout);
-    }
-    disabledStorageInfoTimeout = setTimeout(() => { disabledSaveOutput.innerText = "" }, 1000);
 }
 
 function tileTypeToString(type: TileType): string {
@@ -434,7 +409,6 @@ function showHoveredPathInfo(paths: PathWithColor[], nodes: CWNode[]) {
 }
 
 
-let campfireCodes: Map<string, string> = new Map();
 function canvasContextMenuClick(e: MouseEvent) {
     e.stopPropagation();
     console.log(e);
@@ -445,30 +419,32 @@ function hideContextMenu() {
     canvasContextMenu.innerHTML = canvasContextMenu.innerHTML;
 }
 
-function setupContextMenuForBonfire(e: MouseEvent, position: Vector2){
+function setupContextMenuForBonfire(e: MouseEvent, position: Vector2) {
     canvasContextMenu.classList.remove("hidden");
     canvasContextMenu.style.top = calculateTopPositionOfOverlay(canvasWrapper.getBoundingClientRect(), canvasContextMenu, position.y) + "px";
     canvasContextMenu.style.left = calculateLeftPositionOfOverlay(canvasWrapper.getBoundingClientRect(), canvasContextMenu, e.clientX, position.x) + "px";
 
     const bonfireCodeInput = <HTMLInputElement>canvasContextMenu.querySelector("#bonfire-code");
-    bonfireCodeInput.value = campfireCodes.get(vectorToString(position)) ?? "";
+    bonfireCodeInput.value = persistent.campfireCodes.get(vectorToString(position)) ?? "";
     bonfireCodeInput.addEventListener("input", updateCode);
 
     const disabledInput = <HTMLInputElement>canvasContextMenu.querySelector("#context-menu-disable");
-    disabledInput.checked = disabledTiles.has(vectorToString(position));
+    disabledInput.checked = persistent.disabledTiles.has(vectorToString(position));
     disabledInput.addEventListener("input", updateDisabled);
 
-    function updateDisabled(){
+    function updateDisabled() {
         let stringPos = vectorToString(position);
         if (disabledInput.checked) {
-            disabledTiles.add(stringPos);
+            persistent.disabledTiles.add(stringPos);
         } else {
-            disabledTiles.delete(stringPos);
+            persistent.disabledTiles.delete(stringPos);
         }
         needsRecalculation = true;
+        savePersistentDataToStorage();
         resetDisabled();
     }
-    function updateCode(){
-        campfireCodes.set(vectorToString(position), bonfireCodeInput.value);
+    function updateCode() {
+        persistent.campfireCodes.set(vectorToString(position), bonfireCodeInput.value);
+        savePersistentDataToStorage();
     }
 }

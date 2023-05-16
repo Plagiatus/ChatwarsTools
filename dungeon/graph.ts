@@ -134,7 +134,7 @@ function findConnectionsRecursive(position: Vector2, remainingSteps: number, pat
 
     let newContents: ConnectionContents = structuredClone(contents);
 
-    let isDisabled: boolean = disabledTiles.has(vectorToString(position));
+    let isDisabled: boolean = persistent.disabledTiles.has(vectorToString(position));
     if (!isDisabled) {
         if (maze[position.y][position.x].type === TileType.MONSTER) {
             currentPathCost += getTileWeight(TileType.MONSTER);

@@ -160,14 +160,15 @@ function disableCurrentRoute() {
     for (let pos of currentTreasurePath) {
         let tile = maze[pos.y][pos.x];
         if (tile.type === TileType.MONSTER || tile.type === TileType.TREASURE) {
-            disabledTiles.add(vectorToString(pos));
+            persistent.disabledTiles.add(vectorToString(pos));
         }
     }
     for (let node of currentTreasurePathNodes) {
         if (node.type === TileType.FOUNTAIN) {
-            disabledTiles.add(vectorToString(node.position));
+            persistent.disabledTiles.add(vectorToString(node.position));
         }
     }
+    savePersistentDataToStorage();
     resetDisabled();
     needsRecalculation = true;
 }

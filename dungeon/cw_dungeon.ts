@@ -48,6 +48,7 @@ document.getElementById("stopSearch")?.addEventListener("click", stopSearch);
  * Loads the image from the file input into the canvas.
  */
 function loadImage() {
+    currentMapHash = "";
     let fd = new FormData(document.forms[0]);
     let mazeLayout = fd.get("mazeLayout");
     console.log(mazeLayout);
@@ -64,7 +65,7 @@ function loadImage() {
     }
 
     let img = new Image();
-    img.addEventListener("load", () => {
+    img.addEventListener("load", (event) => {
         for (let ctx of canvasRenderingContexts.values()) {
             ctx.canvas.width = img.width;
             ctx.canvas.height = img.height;
@@ -73,6 +74,7 @@ function loadImage() {
         canvasRenderingContexts.get("bg")?.drawImage(img, 0, 0);
         loadMaze(img.width, img.height);
         resetMaze();
+        loadPersistentDataFromStorage(file);
     })
     //@ts-ignore
     let file = (<HTMLInputElement>document.getElementById("imageInput")).files[0];
