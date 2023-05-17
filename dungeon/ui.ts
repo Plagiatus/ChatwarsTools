@@ -370,12 +370,11 @@ function exportImage() {
         ctx.drawImage(c.canvas, 0, 0, canvas.height, canvas.width);
     }
 
-    const link = document.createElement("a");
-    link.target = "_blank";
-    link.href = canvas.toDataURL();
-    link.click();
-
-    link.remove();
+    const image = new Image();
+    image.src = canvas.toDataURL();
+    const w = window.open("");
+    w?.document.write(image.outerHTML);
+    w?.document.close();
     canvas.remove();
 }
 
