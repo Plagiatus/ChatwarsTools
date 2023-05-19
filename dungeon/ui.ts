@@ -96,7 +96,6 @@ function hideHoverInfo() {
 let longTapTimeout: number;
 let isLongTap = false;
 function handleMouseDown(e: MouseEvent) {
-    console.log("mouseDown");
     e.preventDefault();
     isLongTap = false;
     switch (e.button) {
@@ -111,7 +110,6 @@ function handleMouseDown(e: MouseEvent) {
 }
 
 function handleMouseUp(e: MouseEvent) {
-    console.log("mouseUp", isLongTap);
     e.preventDefault();
     if (e.button === 0) {
         if (isLongTap) {
