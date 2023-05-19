@@ -7,7 +7,8 @@ initCanvases();
 
 canvasWrapper.addEventListener("mousemove", showHoverInfo);
 canvasWrapper.addEventListener("mouseleave", hideHoverInfo);
-canvasWrapper.addEventListener("mousedown", handleMouseClick);
+canvasWrapper.addEventListener("mousedown", handleMouseDown);
+canvasWrapper.addEventListener("mouseup", handleMouseUp);
 canvasWrapper.addEventListener("dblclick", handleMouseDblClick);
 canvasWrapper.addEventListener("contextmenu", (e) => { e.preventDefault(); e.stopPropagation(); });
 
@@ -50,6 +51,7 @@ function initCanvases() {
 }
 
 function showHoverInfo(e: MouseEvent) {
+    clearLongTapTimer();
     canvasOverlay.classList.remove("hidden");
     let { x, y } = getCanvasPosition(e);
     if (!maze || y > maze.length - 1 || !maze[y] || x > maze[y].length - 1) return hideHoverInfo();
@@ -91,10 +93,30 @@ function hideHoverInfo() {
     canvasOverlay?.classList.add("hidden");
 }
 
-function handleMouseClick(e: MouseEvent) {
+let longTapTimeout: number;
+let isLongTap = false;
+function handleMouseDown(e: MouseEvent) {
+    console.log("mouseDown");
     e.preventDefault();
+    isLongTap = false;
     switch (e.button) {
         case 0:
+            clearLongTapTimer();
+            longTapTimeout = setTimeout(() => { isLongTap = true; }, 500);
+            break;
+        case 2:
+            handleRightClick(e);
+            break;
+    }
+}
+
+function handleMouseUp(e: MouseEvent) {
+    console.log("mouseUp", isLongTap);
+    e.preventDefault();
+    if (e.button === 0) {
+        if (isLongTap) {
+            handleRightClick(e);
+        } else {
             let newPosition = getCanvasPosition(e);
             if (vectorEquals(newPosition, currentSelectedPosition)) {
                 resetInfo(false);
@@ -104,11 +126,13 @@ function handleMouseClick(e: MouseEvent) {
                 resetInfo();
                 showSurroundingInfo();
             }
-            break;
-        case 2:
-            handleRightClick(e);
-            break;
+        }
     }
+}
+
+function clearLongTapTimer() {
+    if (longTapTimeout) clearTimeout(longTapTimeout);
+    longTapTimeout = 0;
 }
 
 function getCanvasPosition(e: MouseEvent): Vector2 {
