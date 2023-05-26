@@ -63,16 +63,16 @@ function loadImage() {
     }
 
     let img = new Image();
-    img.addEventListener("load", (event) => {
+    img.addEventListener("load", async (event) => {
         for (let ctx of canvasRenderingContexts.values()) {
             ctx.canvas.width = img.width;
             ctx.canvas.height = img.height;
             ctx.canvas.hidden = false;
         }
         canvasRenderingContexts.get("bg")?.drawImage(img, 0, 0);
+        await loadPersistentDataFromStorage(file);
         loadMaze(img.width, img.height);
-        resetMaze();
-        loadPersistentDataFromStorage(file);
+        resetMazeVisually();
     })
     //@ts-ignore
     let file = (<HTMLInputElement>document.getElementById("imageInput")).files[0];

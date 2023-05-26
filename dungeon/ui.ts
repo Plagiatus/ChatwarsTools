@@ -178,14 +178,18 @@ function highlightStart(big: boolean = settings.startHighlighted) {
 }
 
 function resetMaze() {
+    persistent.disabledTiles = new Set();
+    savePersistentDataToStorage();
+    resetMazeVisually();
+}
+
+function resetMazeVisually(){
     for (let ctx of canvasRenderingContexts.values()) {
         ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
     }
-    persistent.disabledTiles = new Set();
-    savePersistentDataToStorage();
-
     canvasRenderingContexts.get("bg")!.putImageData(imgData, 0, 0);
     resetHighlights();
+    resetDisabled();
 }
 
 
