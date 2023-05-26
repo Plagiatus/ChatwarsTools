@@ -183,7 +183,7 @@ function resetMaze() {
     resetMazeVisually();
 }
 
-function resetMazeVisually(){
+function resetMazeVisually() {
     for (let ctx of canvasRenderingContexts.values()) {
         ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
     }
@@ -472,4 +472,13 @@ function setupContextMenuForBonfire(e: MouseEvent, position: Vector2) {
         persistent.campfireCodes.set(vectorToString(position), bonfireCodeInput.value);
         savePersistentDataToStorage();
     }
+}
+
+function exportData() {
+    console.log(JSON.stringify({
+        campfireCodes: Array.from(persistent.campfireCodes),
+        disabledTiles: Array.from(persistent.disabledTiles),
+        mazeKey: TileType,
+        maze: maze.map(n => n.map(t => t.type)),
+    }))
 }
