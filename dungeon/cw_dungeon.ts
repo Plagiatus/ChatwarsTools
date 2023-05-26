@@ -14,8 +14,6 @@ enum TileType {
 
 interface Tile {
     type: TileType,
-    activated: boolean,
-    visitCount: number,
 }
 
 interface TileWithSteps extends Tile {
@@ -118,7 +116,7 @@ function loadJorgMaze(width: number, height: number) {
         for (let x: number = 0; x < width; x += rasterSize) {
             let colors = getColorValuesForCoordinate(x + offsetX, y + offsetY, width);
             let type = colorToTileTypeJorg(colors);
-            row.push({ type, activated: false, visitCount: 0 });
+            row.push({ type });
 
             if (type === TileType.BOSS) bossPosition = [x / rasterSize, y / rasterSize];
         }
@@ -149,7 +147,7 @@ function loadCWMaze(width: number, height: number) {
             }
             // try to infer tile type based on this average color
             let type = colorToTileTypeCW(average);
-            row.push({ type, activated: false, visitCount: 0 });
+            row.push({ type });
 
             if (type === TileType.BOSS) bossPosition = [x / rasterSize, y / rasterSize];
         }
@@ -331,7 +329,7 @@ function parsePattern(): Tile[][] {
         for (let k: number = 0; k < length; k++) {
             let type: TileType = inputToTypes[textInputFullySplit[i][k]];
             if (type === undefined) throw new Error("unrecognized input token");
-            row.push({ activated: false, visitCount: 0, type })
+            row.push({ type })
         }
         result.push(row);
     }
@@ -398,7 +396,7 @@ async function calculatePathRecursive(x: number, y: number, stepsLeft: number, s
     if (stepsLeft < 0) return;
     if (stateOfMaze[y][x].type === TileType.WALL) return;
     if (stateOfMaze[y][x].steps > stepsLeft) return;
-    if (stateOfMaze[y][x].visitCount >= 2) return;
+    // if (stateOfMaze[y][x].visitCount >= 2) return;
     if (path.length > shortestPathLegth) return;
     // if (shortestPathToHere[y][x] < path.length) return;
     // else shortestPathToHere[y][x] = path.length;
@@ -433,12 +431,12 @@ async function calculatePathRecursive(x: number, y: number, stepsLeft: number, s
 
 
     let newMaze: TileWithSteps[][] = structuredClone(stateOfMaze);
-    newMaze[y][x].visitCount = newMaze[y][x].visitCount + 1;
+    // newMaze[y][x].visitCount = newMaze[y][x].visitCount + 1;
 
-    if ((newMaze[y][x].type === TileType.BONFIRE || newMaze[y][x].type === TileType.FOUNTAIN) && !newMaze[y][x].activated) {
-        stepsLeft = settings.maxSteps;
-        newMaze[y][x].activated = true;
-    }
+    // if ((newMaze[y][x].type === TileType.BONFIRE || newMaze[y][x].type === TileType.FOUNTAIN) && !newMaze[y][x].activated) {
+    //     stepsLeft = settings.maxSteps;
+    //     newMaze[y][x].activated = true;
+    // }
 
     updateProgress();
 
@@ -505,7 +503,7 @@ function updateProgress(done: boolean = false) {
  * @deprecated
  */
 function tileToTileWithSteps(tile: Tile, steps: number): TileWithSteps {
-    return { activated: tile.activated, steps, type: tile.type, visitCount: tile.visitCount }
+    return { steps, type: tile.type}
 }
 
 /**
