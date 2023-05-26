@@ -238,7 +238,7 @@ function fixStartingPosition(startPosition: [number, number]): Vector2 {
     let position: Vector2;
     // is the starting point NOT a campfire or fountain? Then find the closest one of those first.
     if (type !== TileType.BONFIRE && type !== TileType.FOUNTAIN && type !== TileType.BOSS) {
-        let closestConnections = findAndHighlightClosestFountainsAndBonfires();
+        let closestConnections = findClosestFountainsAndBonfires();
         if (closestConnections.length == 0) throw new Error("No Fountains or Bonfires in reach.")
         closestConnections.sort(sortConnectionsByDistanceAndBonfire);
         position = closestConnections[0].position;
@@ -287,13 +287,10 @@ function randomHSLA(alpha: number = 0.8) {
 }
 
 /** Called if the selected starting position is not already a bonfire or fountain. Returns all connections reachable from the position assuming a full step distance. */
-function findAndHighlightClosestFountainsAndBonfires(): CWConnection[] {
+function findClosestFountainsAndBonfires(): CWConnection[] {
     if (maze[startPosition[1]][startPosition[0]].type === TileType.WALL) throw new Error("Start Position cannot be on a wall.");
     let connections = findAllConnections({ position: { x: startPosition[0], y: startPosition[1] }, distance: Infinity, type: TileType.WALL, visited: false }, settings.maxSteps);
     currentPathColor = randomHSLA(0.4);
-    for (let connection of connections) {
-        drawPath(vectorArrayToTupleArray(connection.path), { color: currentPathColor });
-    }
     currentPathColor = randomHSLA();
     return connections;
 }
