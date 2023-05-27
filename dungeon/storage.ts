@@ -24,6 +24,7 @@ async function loadPersistentDataFromStorage(img: File) {
     let mapStorageData = storageData[currentMapHash.substring(0, 10)];
     if (!mapStorageData) {
         mapStorageData = {campfireCodes: {}, disabledTiles: [], lastModified: Date.now()};
+        persistent = { campfireCodes: new Map(), disabledTiles: new Set() };
     }
 
     loadDisabledFromStorage(mapStorageData.disabledTiles);
