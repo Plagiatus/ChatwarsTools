@@ -101,7 +101,7 @@ function calculatePathWithNodes(this: HTMLInputElement, event: Event) {
 /** Find all nodes that are in range of the given node */
 function findAllConnections(node: CWNode, maxSteps: number): CWConnection[] {
     let newConnections: CWConnection[] = findConnectionsRecursive(node.position, maxSteps, [], 0, { monsters: 0, treasures: 0 });
-    if(newConnections.length === 0 || !node) return [];
+    if (newConnections.length === 0 || !node) return [];
 
     //remove first one because it connects to itself.
     if (vectorEquals(newConnections[0].position, node.position)) {
@@ -236,8 +236,8 @@ function fixStartingPosition(startPosition: [number, number]): Vector2 {
     if (startPosition[0] < 0 || startPosition[1] < 0) throw new Error("Invalid Start Position. Did you select one yet (double click)?");
     let type = maze[startPosition[1]][startPosition[0]].type;
     let position: Vector2;
-    // is the starting point NOT a campfire or fountain? Then find the closest one of those first.
-    if (type !== TileType.BONFIRE && type !== TileType.FOUNTAIN && type !== TileType.BOSS) {
+    // is the starting point NOT a campfire or fountain? Or is it disabled? Then find the closest (non-disabled) one of those first.
+    if ((type !== TileType.BONFIRE && type !== TileType.FOUNTAIN && type !== TileType.BOSS) || persistent.disabledTiles.has(vectorToString({ x: startPosition[0], y: startPosition[1] }))) {
         let closestConnections = findClosestFountainsAndBonfires();
         if (closestConnections.length == 0) throw new Error("No Fountains or Bonfires in reach.")
         closestConnections.sort(sortConnectionsByDistanceAndBonfire);
@@ -290,8 +290,6 @@ function randomHSLA(alpha: number = 0.8) {
 function findClosestFountainsAndBonfires(): CWConnection[] {
     if (maze[startPosition[1]][startPosition[0]].type === TileType.WALL) throw new Error("Start Position cannot be on a wall.");
     let connections = findAllConnections({ position: { x: startPosition[0], y: startPosition[1] }, distance: Infinity, type: TileType.WALL, visited: false }, settings.maxSteps);
-    currentPathColor = randomHSLA(0.4);
-    currentPathColor = randomHSLA();
     return connections;
 }
 
