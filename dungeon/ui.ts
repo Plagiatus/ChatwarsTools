@@ -19,8 +19,9 @@ document.getElementById("exportImage")?.addEventListener("click", exportImage);
 //custom context menu
 document.body.addEventListener("click", hideContextMenu);
 document.body.addEventListener("contextmenu", hideContextMenu);
-canvasContextMenu.addEventListener("click", canvasContextMenuClick);
+canvasContextMenu.addEventListener("click", (e) => { e.stopPropagation(); });
 canvasContextMenu.addEventListener("mousedown", (e) => { e.stopPropagation(); });
+canvasContextMenu.addEventListener("mouseup", (e) => { e.stopPropagation(); });
 canvasContextMenu.addEventListener("mousemove", (e) => { hideHoverInfo(); e.stopPropagation(); });
 
 let currentSelectedPosition: Vector2 = { x: -1, y: -1 };
@@ -428,12 +429,6 @@ function showHoveredPathInfo(paths: PathWithColor[], nodes: CWNode[]) {
             ctx.fillRect(tile.x * rasterSize, tile.y * rasterSize, rasterSize, rasterSize);
         }
     }
-}
-
-
-function canvasContextMenuClick(e: MouseEvent) {
-    e.stopPropagation();
-    console.log(e);
 }
 
 function hideContextMenu() {
