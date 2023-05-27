@@ -36,6 +36,7 @@ interface PathWithColor {
 
 function initCanvases() {
     canvasRenderingContexts.set("bg", document.createElement("canvas").getContext("2d")!);
+    canvasRenderingContexts.set("smoke", document.createElement("canvas").getContext("2d")!);
     canvasRenderingContexts.set("disabled", document.createElement("canvas").getContext("2d")!);
     canvasRenderingContexts.set("highlight", document.createElement("canvas").getContext("2d")!);
     canvasRenderingContexts.set("positionFinder", document.createElement("canvas").getContext("2d")!);
@@ -469,3 +470,54 @@ function setupContextMenuForBonfire(e: MouseEvent, position: Vector2) {
         savePersistentDataToStorage();
     }
 }
+
+interface SmokeParticle {
+    pos: Vector2,
+    size: number,
+    opacity: number,
+    speed: number,
+}
+
+const smokeParticles: SmokeParticle[] = [];
+function updateSmoke() {
+    const ctx = canvasRenderingContexts.get("smoke")!;
+    resetCanvas(ctx);
+
+    //update existing ones
+    for (let i = 0; i < smokeParticles.length; i++) {
+        let particle = smokeParticles[i];
+        particle.opacity -= .05;
+        particle.size -= 0.05;
+        if (particle.opacity <= 0 || particle.size <= 0) {
+            smokeParticles.splice(i, 1);
+            i--;
+            continue;
+        }
+        particle.pos.y -= particle.speed;
+    }
+
+    //add new ones, one per bonfire
+    for (let campfire of persistent.campfireCodes) {
+        if (persistent.disabledTiles.has(campfire[0])) continue;
+        let size = Math.floor(Math.random() * 3) + 1;
+        let speed = Math.floor(Math.random() * 2) + 1;
+        let pos = stringToVector(campfire[0]);
+        pos = {
+            x: pos.x * rasterSize + rasterSize / 2 + (Math.floor(Math.random() * rasterSize / 2) - rasterSize / 4),
+            y: pos.y * rasterSize + rasterSize / 4,
+        };
+        let newParticle: SmokeParticle = { opacity: .5, pos, size, speed }
+        smokeParticles.push(newParticle);
+    }
+
+    //draw them
+    for (let particle of smokeParticles) {
+        let path: Path2D = new Path2D();
+        path.arc(particle.pos.x, particle.pos.y, particle.size, 0, 360);
+        ctx.fillStyle = `rgba(0,0,0,${particle.opacity})`;
+        ctx.fill(path);
+    }
+
+    setTimeout(updateSmoke, 100);
+}
+updateSmoke();
