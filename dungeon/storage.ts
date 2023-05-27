@@ -89,4 +89,5 @@ function removeOldMapData(storageData: StorageData) {
         delete storageData[oldestHash];
         overflow--;
     }
+    localStorage.setItem("persistent", JSON.stringify(storageData));
 }
