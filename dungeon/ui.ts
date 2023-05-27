@@ -180,14 +180,18 @@ function highlightStart(big: boolean = settings.startHighlighted) {
 }
 
 function resetMaze() {
+    persistent.disabledTiles = new Set();
+    savePersistentDataToStorage();
+    resetMazeVisually();
+}
+
+function resetMazeVisually() {
     for (let ctx of canvasRenderingContexts.values()) {
         ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
     }
-    persistent.disabledTiles = new Set();
-    savePersistentDataToStorage();
-
     canvasRenderingContexts.get("bg")!.putImageData(imgData, 0, 0);
     resetHighlights();
+    resetDisabled();
 }
 
 
@@ -516,3 +520,12 @@ function updateSmoke() {
     setTimeout(updateSmoke, 100);
 }
 updateSmoke();
+
+function exportData() {
+    console.log(JSON.stringify({
+        campfireCodes: Array.from(persistent.campfireCodes),
+        disabledTiles: Array.from(persistent.disabledTiles),
+        mazeKey: TileType,
+        maze: maze.map(n => n.map(t => t.type)),
+    }))
+}
