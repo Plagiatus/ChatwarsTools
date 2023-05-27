@@ -453,6 +453,8 @@ function setupContextMenuForBonfire(e: MouseEvent, position: Vector2) {
     disabledInput.checked = persistent.disabledTiles.has(vectorToString(position));
     disabledInput.addEventListener("input", updateDisabled);
 
+    canvasContextMenu.querySelector("button")?.addEventListener("click", copy);
+
     function updateDisabled() {
         let stringPos = vectorToString(position);
         if (disabledInput.checked) {
@@ -467,6 +469,11 @@ function setupContextMenuForBonfire(e: MouseEvent, position: Vector2) {
     function updateCode() {
         persistent.campfireCodes.set(vectorToString(position), bonfireCodeInput.value);
         savePersistentDataToStorage();
+    }
+    function copy(){
+        bonfireCodeInput.select();
+        bonfireCodeInput.setSelectionRange(0, 99);
+        navigator.clipboard.writeText(bonfireCodeInput.value);
     }
 }
 
