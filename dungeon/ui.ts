@@ -468,6 +468,9 @@ function setupContextMenuForBonfire(e: MouseEvent, position: Vector2) {
     }
     function updateCode() {
         persistent.campfireCodes.set(vectorToString(position), bonfireCodeInput.value);
+        if(!bonfireCodeInput.value) {
+            persistent.campfireCodes.delete(vectorToString(position));
+        }
         savePersistentDataToStorage();
     }
     function copy(){
