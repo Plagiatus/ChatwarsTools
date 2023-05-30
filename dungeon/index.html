@@ -77,27 +77,47 @@
         <button class="btn btn-primary mt-2" id="findPosition">Find Position</button><br>
     </div>
     <div>
-        <div class="d-flex">
-            <div class="p-2 border rounded me-2">
+        <div id="menu-wrapper">
+            <div class="p-2 border rounded me-2 g-col-6">
                 <h3>Settings</h3>
-                <label for="maxSteps">Your steps (30 default, 35 or more for premium)</label>
-                <input type="number" name="maxSteps" id="maxSteps" min="30" max="45" step="5" value="30"
+                <ul class="nav nav-tabs" id="settingTab" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="general-tab" data-tab-toggle="tab" data-tab-target="#general-settings"
+                            type="button" role="tab" aria-controls="general-settings" aria-selected="true">General</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="advanced-tab" data-tab-toggle="tab" data-tab-target="#advanced-settings"
+                            type="button" role="tab" aria-controls="advanced-settings" aria-selected="false">Advanced</button>
+                    </li>
+                </ul>
+                <div id="general-settings">
+                    <h4>General</h4>
+                    <label for="maxSteps">Your steps (30 default, 35 or more for premium)</label>
+                    <input type="number" name="maxSteps" id="maxSteps" min="30" max="45" step="5" value="30"
                     style="width: 3em;"><br>
-                <input type="checkbox" name="startResetsPaths" id="startResetsPaths">
-                <label for="startResetsPaths">Changing Start position resets maze</label><br>
-                <input type="checkbox" name="scribbleLinesCheck" id="scribbleLinesCheck">
-                <label for="scribbleLinesCheck">Scribble Lines (less neat, easier to follow)</label><br>
-                <h4 class="mt-2">Highlights</h4>
-                <input type="checkbox" name="highlightStartCheck" id="highlightStartCheck">
-                <label for="highlightStartCheck">Highlight Start</label><br>
-                <input type="checkbox" name="highlightBossCheck" id="highlightBossCheck">
-                <label for="highlightBossCheck">Highlight Boss</label><br>
-                <h4 class="mt-2">Reset</h4>
-                <button class="btn btn-danger" id="resetMaze">Reset Maze</button><br>
-                <button class="btn btn-danger mt-1" id="resetSettings">Reset Settings</button><br>
-            </div>
-            <div class="p-2 border rounded">
+                    <input type="checkbox" name="startResetsPaths" id="startResetsPaths">
+                    <label for="startResetsPaths">Changing Start position resets maze</label><br>
+                    <input type="checkbox" name="scribbleLinesCheck" id="scribbleLinesCheck">
+                    <label for="scribbleLinesCheck">Scribble Lines (less neat, easier to follow)</label><br>
+                    <h4 class="mt-2">Highlights</h4>
+                    <input type="checkbox" name="highlightStartCheck" id="highlightStartCheck">
+                    <label for="highlightStartCheck">Highlight Start</label><br>
+                    <input type="checkbox" name="highlightBossCheck" id="highlightBossCheck">
+                    <label for="highlightBossCheck">Highlight Boss</label><br>
+                    <h4 class="mt-2">Reset</h4>
+                    <button class="btn btn-danger" id="resetMaze">Reset Maze</button><br>
+                    <button class="btn btn-danger mt-1" id="resetSettings">Reset Settings</button><br>
+                </div>
+                <div id="advanced-settings">
+                    <h4>Advanced</h4>
+                    <label for="">Colors</label>
+                    <div id="color-settings-wrapper">
 
+                    </div>
+                </div>
+            </div>
+            <div class="p-2 border rounded g-col-6">
+                <h3>Path</h3>
                 <ul class="nav nav-tabs" id="algoTab" role="tablist">
                     <li class="nav-item" role="presentation">
                         <button class="nav-link active" id="boss-tab" data-tab-toggle="tab" data-tab-target="#boss"
@@ -105,7 +125,7 @@
                     </li>
                     <li class="nav-item" role="presentation">
                         <button class="nav-link" id="treasure-tab" data-tab-toggle="tab" data-tab-target="#treasure"
-                            type="button" role="tab" aria-controls="treasure" aria-selected="true">Treasure Run</button>
+                            type="button" role="tab" aria-controls="treasure" aria-selected="false">Treasure Run</button>
                     </li>
                 </ul>
 
@@ -191,6 +211,15 @@
 
     .invisible {
         opacity: 0;
+    }
+
+    #menu-wrapper {
+        display: grid;
+        grid-template: 1fr / 1fr 1fr;
+    }
+
+    .color-remover::before {
+        content: "x";
     }
 
     #canvas-wrapper {

@@ -23,6 +23,7 @@ interface Settings {
         fountainsOnly: boolean,
         multipliers: { monster: number, treasure: number },
     },
+    colors: string[],
 }
 
 // get relevant HTML Elements
@@ -143,6 +144,8 @@ function loadSettingsFromStorage(): Settings {
     if (loadedSettings.treasure.multipliers.monster === undefined) loadedSettings.treasure.multipliers.monster = 1;
     if (loadedSettings.treasure.multipliers.treasure === undefined) loadedSettings.treasure.multipliers.treasure = 1;
 
+    if (loadedSettings.colors === undefined) loadedSettings.colors = ["#d92626", "#d9d926", "#26d926", "#26d9d9", "#2626d9", "#d926d9"];
+
     saveSettingsToStorage(loadedSettings);
     return loadedSettings;
 }
@@ -162,6 +165,7 @@ function syncUIToValues() {
     bonfireWeightElement.value = settings.boss.weights.bonfire.toString();
     monsterWeightElement.value = settings.boss.weights.monster.toString();
     scribbleLinesElement.checked = settings.scribbleLines;
+    setupColors();
 }
 
 function resetSettings() {
@@ -171,6 +175,7 @@ function resetSettings() {
     settings.startResetsPath = false;
     settings.scribbleLines = false;
     settings.boss = { onlyThroughBonfires: true, weights: { bonfire: 5, fountain: 1, monster: 3 } };
+    settings.colors = ["#d92626", "#d9d926", "#26d926", "#26d9d9", "#2626d9", "#d926d9"];
     saveSettingsToStorage();
     syncUIToValues();
 }
@@ -184,4 +189,55 @@ function getTileWeight(tile: TileType): number {
     return 0;
 }
 
+//#endregion
+
+//#region colors
+function setupColors(){
+    let colorWrapperElement = document.getElementById("color-settings-wrapper")!;
+    colorWrapperElement.innerHTML = "";
+    for(let i= 0; i< settings.colors.length; i++) {
+        let color = settings.colors[i];
+        appendColorElement(color, i);
+    }
+    let addButton = document.createElement("button");
+    addButton.classList.add("btn", "btn-success")
+    addButton.innerText = "Add";
+    addButton.addEventListener("click", addColor);
+    colorWrapperElement.append(addButton);
+
+    function appendColorElement(color: string, index: number) {
+        let colorElement = document.createElement("input");
+        colorElement.type = "color";
+        colorElement.value = color;
+        colorElement.classList.add("color-selector");
+        let colorWrapper = document.createElement("span");
+        colorWrapper.classList.add("position-relative");
+        let colorRemover = document.createElement("button");
+        colorRemover.classList.add("color-remover", "btn", "btn-danger");
+        colorRemover.addEventListener("click", removeColor);
+
+
+        colorWrapper.append(colorElement);
+        colorWrapper.append(colorRemover);
+        colorWrapperElement.append(colorWrapper);
+        colorElement.addEventListener("change", updateColor);
+
+        function updateColor(){
+            settings.colors[index] = colorElement.value;
+            saveSettingsToStorage();
+        }
+
+        function removeColor(){
+            settings.colors.splice(index, 1);
+            saveSettingsToStorage();
+            setupColors();
+        }
+    }
+
+    function addColor(){
+        let newColor = "#000000";
+        settings.colors.push(newColor);
+        setupColors();
+    }
+}
 //#endregion

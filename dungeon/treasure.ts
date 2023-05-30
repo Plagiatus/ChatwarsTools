@@ -137,7 +137,7 @@ function findTreasureRoute() {
         currentTreasurePathNodes.push(node);
         currentlyDisplayedPathNodes.push(node);
         fullPath.push(...(node.pathToPrevious ?? []));
-        currentlyDisplayedPaths.push({path: node.pathToPrevious ?? [], color: currentPathColor, id: ++pathId});
+        currentlyDisplayedPaths.push({ path: node.pathToPrevious ?? [], color: currentPathColor, id: ++pathId });
         if (vectorEquals(node.position, startPositionVector)) {
             atStartPosition = true;
             break;
@@ -145,12 +145,12 @@ function findTreasureRoute() {
         position = <Vector2>node.previous;
         highlightStop(position);
         drawPath(vectorArrayToTupleArray(node.pathToPrevious ?? []), { color: currentPathColor, directional: true });
-        currentPathColor = randomHSLA();
+        currentPathColor = nextColor();
     }
     currentTreasurePath = fullPath;
     currentlyDisplayedPathNodes.reverse();
     currentlyDisplayedPaths.reverse();
-    for(let path of currentlyDisplayedPaths) {
+    for (let path of currentlyDisplayedPaths) {
         path.id = currentlyDisplayedPaths.length - path.id;
     }
 }

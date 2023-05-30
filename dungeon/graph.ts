@@ -221,7 +221,7 @@ function findPathFromNodes() {
             atBossPosition = true;
             break;
         } else if (node.type === TileType.BONFIRE) {
-            currentPathColor = randomHSLA();
+            currentPathColor = nextColor();
             dashed = !dashed;
         }
         position = <Vector2>node.previous;
@@ -281,9 +281,17 @@ function sortConnectionsByDistanceAndBonfire(a: CWConnection, b: CWConnection) {
 
 
 let previousColorAngle = Math.floor(Math.random() * 360);
-let currentPathColor: string = randomHSLA();
+let currentColor = 0;
+let currentPathColor: string = nextColor();
+/** @deprecated use nextColor() instead */
 function randomHSLA(alpha: number = 0.8) {
     return `hsla(${previousColorAngle += 60}, 70%, 50%, ${alpha})`;
+}
+
+function nextColor(alpha: number = 0.8): string {
+    let colorValue = settings.colors[currentColor++ % settings.colors.length];
+    colorValue += Math.floor(255 * alpha).toString(16).padStart(2, "0");
+    return colorValue;
 }
 
 /** Called if the selected starting position is not already a bonfire or fountain. Returns all connections reachable from the position assuming a full step distance. */
