@@ -209,9 +209,9 @@ function setupColors(){
         let colorElement = document.createElement("input");
         colorElement.type = "color";
         colorElement.value = color;
-        colorElement.classList.add("color-selector");
+        colorElement.classList.add("color-selector","form-control", "form-control-color");
         let colorWrapper = document.createElement("span");
-        colorWrapper.classList.add("position-relative");
+        colorWrapper.classList.add("input-group");
         let colorRemover = document.createElement("button");
         colorRemover.classList.add("color-remover", "btn", "btn-danger");
         colorRemover.addEventListener("click", removeColor);

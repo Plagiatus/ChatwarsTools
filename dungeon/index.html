@@ -111,7 +111,7 @@
                 <div id="advanced-settings">
                     <h4>Advanced</h4>
                     <label for="">Colors</label>
-                    <div id="color-settings-wrapper">
+                    <div id="color-settings-wrapper" class="d-flex align-items-top flex-wrap">
 
                     </div>
                 </div>
@@ -217,7 +217,11 @@
         display: grid;
         grid-template: 1fr / 1fr 1fr;
     }
-
+    #color-settings-wrapper > span.input-group {
+        width: 100px;
+        display: inline-flex;
+        padding-right: 0.1em;
+    }
     .color-remover::before {
         content: "x";
     }
