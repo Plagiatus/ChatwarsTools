@@ -71,7 +71,7 @@ function showHoverInfo(e: MouseEvent) {
     tile.innerText = tileTypeToString(maze[y][x]?.type ?? "");
 
     let { paths, nodes } = findActivePathsAtThisPosition({ x, y });
-    // showHoveredPathInfo(paths, nodes);
+    showHoveredPathInfo(paths, nodes);
     const pathWrapper = <HTMLDivElement>canvasOverlay.querySelector("#paths");
     pathWrapper.innerHTML = "";
     for (let path of paths) {
@@ -270,12 +270,13 @@ interface PathDrawingOptions {
     dashed?: boolean,
     directional?: boolean,
     randomOffset?: boolean,
+    ctx?: CanvasRenderingContext2D,
 }
 /**
  * Draws a path (segment) onto the map
  */
 function drawPath(path: [number, number][], options?: PathDrawingOptions) {
-    options = { ...{ fat: false, dashed: false, directional: false, randomOffset: settings.scribbleLines, }, ...options };
+    options = { ...{ fat: false, dashed: false, directional: false, randomOffset: settings.scribbleLines, ctx: canvasRenderingContexts.get("path")!}, ...options };
     let p: Path2D = new Path2D();
     let position = path[0] ?? [-1, -1];
     let offsetX = 0, offsetY = 0;
@@ -297,7 +298,7 @@ function drawPath(path: [number, number][], options?: PathDrawingOptions) {
         }
         p.lineTo(path[i][1] * rasterSize + rasterSize / 2 + offsetX, path[i][0] * rasterSize + rasterSize / 2 + offsetY);
     }
-    let pathCtx = canvasRenderingContexts.get("path")!;
+    let pathCtx = options.ctx!;
     pathCtx.strokeStyle = options.color ?? `hsl(${Math.floor(Math.random() * 360)}, 70%, 40%)`;
     if (showProgress) pathCtx.strokeStyle = "black";
     if (options.fat) pathCtx.lineWidth = inputMazeType == "cw" ? 3 : 5;
@@ -429,9 +430,7 @@ function showHoveredPathInfo(paths: PathWithColor[], nodes: CWNode[]) {
     resetCanvas(ctx);
     ctx.fillStyle = "black";
     for (let path of paths) {
-        for (let tile of path.path) {
-            ctx.fillRect(tile.x * rasterSize, tile.y * rasterSize, rasterSize, rasterSize);
-        }
+        drawPath(path.path.map(v => [v.y, v.x]), {color: path.color.substring(0, path.color.length - 2), ctx, directional: true, fat: true});
     }
 }
 

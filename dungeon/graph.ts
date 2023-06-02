@@ -288,7 +288,7 @@ function randomHSLA(alpha: number = 0.8) {
     return `hsla(${previousColorAngle += 60}, 70%, 50%, ${alpha})`;
 }
 
-function nextColor(alpha: number = 0.8): string {
+function nextColor(alpha: number = 0.5): string {
     let colorValue = settings.colors[currentColor++ % settings.colors.length];
     colorValue += Math.floor(255 * alpha).toString(16).padStart(2, "0");
     return colorValue;
