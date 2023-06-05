@@ -330,7 +330,7 @@ function calculateNeededItems(neededItems: CalculateItem[], bsWonders: number) {
 				}
 			}
 			let guilditem: StockItem | undefined = availableGuildItems.find(el => el.id == item.id && el.active);
-			if (guilditem) {
+			if (guilditem && guilditem.amount > 0) {
 				let amount: number = guilditem.amount;
 				guilditem.amount -= amountNeeded;
 				if (guilditem.amount < 0) {
