@@ -302,7 +302,7 @@ function calculateNeededItems(neededItems: CalculateItem[], bsWonders: number) {
 				if (amountNeeded > 0) {
 					if (item && Object.keys(item.recipe).length > 0) {
 						neededItems.push(itemToCalcItem(item, amountNeeded));
-						depositToGuild.push({id: item.id, amount: amountNeeded});
+						depositToGuild.push({ id: item.id, amount: amountNeeded });
 					} else if (item) {
 						notAvailable.push({ amount: amountNeeded, id: item.id });
 					}
@@ -441,6 +441,7 @@ function formatWithdraws(arr: Ingredient[]): HTMLElement {
 	let itemsToWithdraw: Ingredient[] = [...arr];
 	let ul: HTMLUListElement = document.createElement("ul");
 
+	let totalWithdrawsText = "";
 	while (itemsToWithdraw.length > 0) {
 		let li: HTMLLIElement = document.createElement("li");
 		let code: HTMLElement = document.createElement("code");
@@ -453,7 +454,11 @@ function formatWithdraws(arr: Ingredient[]): HTMLElement {
 		li.appendChild(code);
 		addCopyButton(li, code.innerText);
 		ul.appendChild(li);
+		totalWithdrawsText += "`" + code.innerText + "`\n";
 	}
+	ul.appendChild(document.createElement("br"));
+	ul.appendChild(document.createTextNode(`Copy all `));
+	addCopyButton(ul, totalWithdrawsText);
 
 	return ul;
 }
@@ -462,15 +467,22 @@ function formatCrafting(arr: CalculateItem[]): HTMLElement {
 	if (arr.length <= 0) return returnNone();
 	let ol: HTMLOListElement = document.createElement("ol");
 	let totalMana: number = 0;
+	let totalCraftingText = "";
 	for (let i of arr) {
 		let li: HTMLLIElement = document.createElement("li");
 		let manacost: number = i.craftMana * i.amount;
 		totalMana += manacost;
-		li.innerHTML = `<code class="crafting-step">/c_${i.id} ${i.amount < 10 ? "0" : ""}${i.amount}</code><span class="crafting-mana text-muted">${manacost} 💧</span>`;
+		let craftingText = `/c_${i.id} ${i.amount < 10 ? "0" : ""}${i.amount}`;
+		li.innerHTML = `<code class="crafting-step">${craftingText}</code><span class="crafting-mana text-muted">${manacost} 💧</span>`;
 		ol.appendChild(li);
-		addCopyButton(li, `/c_${i.id} ${i.amount < 10 ? "0" : ""}${i.amount}`);
+		addCopyButton(li, craftingText);
+		totalCraftingText += `\`${craftingText}\`\n`;
 	}
-	ol.appendChild(document.createTextNode(`Total: ${totalMana} 💧`))
+	
+	ol.appendChild(document.createTextNode(`Total: ${totalMana} 💧`));
+	ol.appendChild(document.createElement("br"));
+	ol.appendChild(document.createTextNode(`Copy all `));
+	addCopyButton(ol, totalCraftingText);
 	return ol;
 }
 
@@ -487,14 +499,23 @@ function formatPlayerUsed(arr: Ingredient[]): HTMLElement {
 }
 
 function formatDeposit(arr: Ingredient[]): HTMLElement {
-	if (arr.length<=0) return returnNone();
+	if (arr.length <= 0) return returnNone();
 	let ol: HTMLOListElement = document.createElement("ol");
-	for(let i of arr) {
+	let totalDepositText = "";
+	for (let i of arr) {
 		let li: HTMLLIElement = document.createElement("li");
-		li.innerHTML = `<code class="crafting-step">/gd_${i.id}_${i.amount}</code>`;
+		let copyText = `/gd_${i.id}_${i.amount}`;
+		li.innerHTML = `<code class="crafting-step">${copyText}</code>`;
 		ol.appendChild(li);
-		addCopyButton(li, `/gd_${i.id}_${i.amount}`);
+		addCopyButton(li, copyText);
+		
+		totalDepositText += `\`${copyText}\`\n`;
 	}
+
+	
+	ol.appendChild(document.createElement("br"));
+	ol.appendChild(document.createTextNode(`Copy all `));
+	addCopyButton(ol, totalDepositText);
 
 	return ol;
 }
@@ -576,8 +597,8 @@ function removeInvalidity(this: HTMLInputElement, _e: Event) {
 let copyButtonTemplate: HTMLTemplateElement = <HTMLTemplateElement>document.getElementById("template-copy");
 
 function addCopyButton(parentElement: HTMLElement, textToCopy: string) {
-	parentElement.appendChild(copyButtonTemplate.content.cloneNode(true));
-	let newButton: HTMLButtonElement = <HTMLButtonElement>parentElement.querySelector("button.copy-button");
+	let newButton = <HTMLButtonElement>copyButtonTemplate.content.cloneNode(true).childNodes[1];
+	parentElement.appendChild(newButton);
 	newButton.addEventListener("click", copyPreviousElementsText);
 
 	function copyPreviousElementsText(this: HTMLButtonElement, _e: Event): void {
